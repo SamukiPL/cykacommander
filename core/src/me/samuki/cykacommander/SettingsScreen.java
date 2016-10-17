@@ -38,7 +38,7 @@ public class SettingsScreen implements Screen {
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
         //SETTINGS VALUES
-        soundOn = game.prefs.getBoolean("sound", true);
+        soundOn = CykaGame.prefs.getBoolean("sound", true);
         System.out.println(soundOn);
         //ON/OFF
         onOffSkin = new Skin();
@@ -62,9 +62,9 @@ public class SettingsScreen implements Screen {
         buttonSound.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.prefs.putBoolean("sound", !soundOn);
-                game.prefs.flush();
-                soundOn = game.prefs.getBoolean("sound");
+                CykaGame.prefs.putBoolean("sound", !soundOn);
+                CykaGame.prefs.flush();
+                soundOn = CykaGame.prefs.getBoolean("sound");
                 System.out.println(soundOn);
             }
         });

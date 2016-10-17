@@ -32,8 +32,8 @@ public class GameBasic {
 
     public GameBasic() {
         //SHIP ANIMATION
-
-        Texture tmpTexture = new Texture("ship_sprites/cykamove.png");
+        int whichShip = CykaGame.prefs.getInteger("whichShip", 0);
+        Texture tmpTexture = new Texture("ship_sprites/ship_sprite_"+whichShip+".png");
         TextureRegion[][] tmp = TextureRegion.split(tmpTexture, tmpTexture.getWidth(), tmpTexture.getHeight()/SPRITE_ROWS);
         shipFrames = new TextureRegion[SPRITE_COLS*SPRITE_ROWS];
         for (int i = 0; i < SPRITE_ROWS; i++){

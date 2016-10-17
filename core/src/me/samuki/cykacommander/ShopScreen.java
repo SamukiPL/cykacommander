@@ -31,10 +31,12 @@ public class ShopScreen implements Screen {
     TextureRegion tens;
     TextureRegion ones;
     //SHOPITEMS
-    private static final int AMOUNT = 4; //Ships for sale
+    private static final int AMOUNT = 2; //Ships for sale
 
+    boolean[] isBought;
     Texture[] shopItems;
     ImageButton[] shopButtons;
+    int[] price;
 
     public ShopScreen(CykaGame game) {
         this.game = game;
@@ -59,10 +61,14 @@ public class ShopScreen implements Screen {
         //BACKGROUND
         background = new Texture("shop_background.png");
         //CASH
-        cash = game.prefs.getInteger("cash", 0);
+        cash = CykaGame.prefs.getInteger("cash", 0);
         //SHOP ITEMS
+        CykaGame.prefs.putBoolean("isBought_0", true);
+        CykaGame.prefs.flush();
+        isBought = new boolean[AMOUNT];
         shopItems = new Texture[AMOUNT];
         shopButtons = new ImageButton[AMOUNT];
+        price = new int[AMOUNT];
 
         buyUseSkin = new Skin();
         buyUseSkin.add("buy", new Texture("buy_button.png"));
@@ -71,20 +77,39 @@ public class ShopScreen implements Screen {
         for(int i = 0; i < AMOUNT; i++) {
             final int index = i;
 
-            shopItems[i] = new Texture("shop_items/shop_ship_1.png");
-            shopButtons[i] = new ImageButton(buyUseSkin.getDrawable("buy"), buyUseSkin.getDrawable("buy"), buyUseSkin.getDrawable("use"));
-            if(i%2 == 0) {
-                shopButtons[i].setPosition(160 - (shopButtons[i].getWidth()/2) + (160 * i), 465);
+            isBought[index] = CykaGame.prefs.getBoolean("isBought_"+index, false);
+            if(!isBought[index]) {
+                shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
+                shopButtons[index] = new ImageButton(buyUseSkin.getDrawable("buy"), buyUseSkin.getDrawable("buy"));
             }
             else {
-                shopButtons[i].setPosition(160 - (shopButtons[i].getWidth()/2) + (160 * (i-1)), 50);
+                shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
+                shopButtons[index] = new ImageButton(buyUseSkin.getDrawable("use"), buyUseSkin.getDrawable("use"));
             }
-            stage.addActor(shopButtons[i]);
 
-            shopButtons[i].addListener(new ChangeListener() {
+            if(i%2 == 0) {
+                shopButtons[index].setPosition(160 - (shopButtons[index].getWidth()/2) + (160 * index), 465);
+            }
+            else {
+                shopButtons[index].setPosition(160 - (shopButtons[index].getWidth()/2) + (160 * (index-1)), 50);
+            }
+            stage.addActor(shopButtons[index]);
+
+            price[index] = 25+(25*index);
+
+            shopButtons[index].addListener(new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
-                    System.out.println(index);
+                    if(!isBought[index]) {
+                        //IF NOT BOUGHT
+                        if(cash >= price[index]) {
+                            cash-=price[index];
+                            CykaGame.prefs.putInteger("cash", cash);
+                        }
+                    }
+                    else {
+                        CykaGame.prefs.putInteger("whichShip", index);
+                    }
                 }
             });
         }

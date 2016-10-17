@@ -113,7 +113,7 @@ public class GameScreen implements Screen {
         });
         Gdx.input.setCatchBackKey(true);
         //SOUNDS
-        if(game.prefs.getBoolean("sound", true))
+        if(CykaGame.prefs.getBoolean("sound", true))
             volume = 1f;
         else
             volume = 0;

@@ -66,20 +66,20 @@ public class DeathScreen implements Screen {
         stage.addActor(menuButton);
         //PREFERENCES
         this.points = GameScreen.points;
-        bestScore = game.prefs.getInteger("best-score", 0);
+        bestScore = CykaGame.prefs.getInteger("best-score", 0);
 
         if(points > bestScore) {
-            game.prefs.putInteger("best-score", points);
+            CykaGame.prefs.putInteger("best-score", points);
             bestScore = points;
-            game.prefs.flush();
+            CykaGame.prefs.flush();
         }
         //CASH
-        cash = game.prefs.getInteger("cash", 0);
+        cash = CykaGame.prefs.getInteger("cash", 0);
         for(int i = 0; i <= (points-5); i+=5) {
             cash++;
-            game.prefs.putInteger("cash", cash);
+            CykaGame.prefs.putInteger("cash", cash);
             System.out.println(cash+"TAK");
-            game.prefs.flush();
+            CykaGame.prefs.flush();
         }
         //BUTTONS INPUT
         playAgainButton.addListener(new ChangeListener() {

@@ -10,7 +10,7 @@ public class CykaGame extends Game {
 
 	public SpriteBatch batch;
 	public OrthographicCamera camera;
-	public Preferences prefs;
+	public static Preferences prefs;
 	
 	@Override
 	public void create () {
