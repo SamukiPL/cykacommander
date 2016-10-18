@@ -7,36 +7,41 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class ShopScreen implements Screen {
-    CykaGame game;
+    private CykaGame game;
     GameBasic basic;
-    Stage stage;
-    FitViewport viewport;
+    private Stage stage;
+    private FitViewport viewport;
     //BACKGROUND
-    Texture background;
-    //BUTTONS SKINS
-    Skin backSkin;
-    Skin buyUseSkin;
+    private Texture background;
     //CASH
-    int cash;
-    int tensPlace;
-    int onesPlace;
-    TextureRegion tens;
-    TextureRegion ones;
+    private int cash;
+    private int tensPlace;
+    private int onesPlace;
+    private TextureRegion tens;
+    private TextureRegion ones;
+    //BUTTON STYLES
+    ImageButton.ImageButtonStyle buyButton;
+    ImageButton.ImageButtonStyle useButton;
+    //SHOP PRICES
+    private static final int PRICE_CHANGE = 0;
     //SHOPITEMS
     private static final int AMOUNT = 2; //Ships for sale
 
-    boolean[] isBought;
-    Texture[] shopItems;
-    ImageButton[] shopButtons;
-    int[] price;
+    private boolean[] isBought;
+    private Texture[] shopItems;
+    private ImageButton[] shopButtons;
+    private int[] price;
 
     public ShopScreen(CykaGame game) {
         this.game = game;
@@ -52,7 +57,7 @@ public class ShopScreen implements Screen {
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
         //BACK
-        backSkin = new Skin();
+        Skin backSkin = new Skin();
         backSkin.add("back", new Texture("back_button.png"));
 
         final ImageButton backButton = new ImageButton(backSkin.getDrawable("back"), backSkin.getDrawable("back"));
@@ -70,9 +75,20 @@ public class ShopScreen implements Screen {
         shopButtons = new ImageButton[AMOUNT];
         price = new int[AMOUNT];
 
-        buyUseSkin = new Skin();
-        buyUseSkin.add("buy", new Texture("buy_button.png"));
-        buyUseSkin.add("use", new Texture("use_button.png"));
+        Skin buyUseSkin = new Skin();
+        //BUY BUTTON STYLE
+        buyUseSkin.add("buy_up", new Texture("buy_button.png"));
+        buyUseSkin.add("buy_down", new Texture("buy_button.png"));
+        buyButton = new ImageButton.ImageButtonStyle();
+        buyButton.up = buyUseSkin.getDrawable("buy_up");
+        buyButton.down = buyUseSkin.getDrawable("buy_down");
+        //USE BUTTON STYLE
+        buyUseSkin.add("use_0", new Texture("use_button_0.png"));
+        buyUseSkin.add("use_1", new Texture("use_button_1.png"));
+        useButton = new ImageButton.ImageButtonStyle();
+        useButton.up = buyUseSkin.getDrawable("use_0");
+        useButton.down = buyUseSkin.getDrawable("use_1");
+        useButton.checked = buyUseSkin.getDrawable("use_1");
 
         for(int i = 0; i < AMOUNT; i++) {
             final int index = i;
@@ -80,11 +96,11 @@ public class ShopScreen implements Screen {
             isBought[index] = CykaGame.prefs.getBoolean("isBought_"+index, false);
             if(!isBought[index]) {
                 shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
-                shopButtons[index] = new ImageButton(buyUseSkin.getDrawable("buy"), buyUseSkin.getDrawable("buy"));
+                shopButtons[index] = new ImageButton(buyButton);
             }
             else {
                 shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
-                shopButtons[index] = new ImageButton(buyUseSkin.getDrawable("use"), buyUseSkin.getDrawable("use"));
+                shopButtons[index] = new ImageButton(useButton);
             }
 
             if(i%2 == 0) {
@@ -95,24 +111,38 @@ public class ShopScreen implements Screen {
             }
             stage.addActor(shopButtons[index]);
 
-            price[index] = 25+(25*index);
+            price[index] = PRICE_CHANGE+(PRICE_CHANGE*index);
 
-            shopButtons[index].addListener(new ChangeListener() {
+            shopButtons[index].addListener(new ClickListener() {
                 @Override
-                public void changed(ChangeEvent event, Actor actor) {
+                public void clicked(InputEvent event, float x, float y) {
                     if(!isBought[index]) {
                         //IF NOT BOUGHT
                         if(cash >= price[index]) {
                             cash-=price[index];
                             CykaGame.prefs.putInteger("cash", cash);
+                            CykaGame.prefs.putBoolean("isBought_"+index, true);
+                            isBought[index] = true;
+                            shopButtons[index].setStyle(useButton);
+                            shopButtons[index].setChecked(false);
+                            CykaGame.prefs.flush();
                         }
                     }
                     else {
-                        CykaGame.prefs.putInteger("whichShip", index);
+                        if (shopButtons[index].isChecked()) {
+                            shopButtons[CykaGame.prefs.getInteger("whichShip", 0)].setChecked(false);
+                            CykaGame.prefs.putInteger("whichShip", index);
+                            CykaGame.prefs.flush();
+                        }
+                        else
+                            shopButtons[index].setChecked(true);
                     }
+
                 }
             });
         }
+
+        shopButtons[CykaGame.prefs.getInteger("whichShip", 0)].setChecked(true);
 
         backButton.addListener(new ChangeListener() {
             @Override
@@ -130,8 +160,6 @@ public class ShopScreen implements Screen {
         game.batch.begin();
         game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
         showWallet(cash);
-        game.batch.draw(tens, 524, 898, 48, 84);
-        game.batch.draw(ones, 572, 898, 48, 84);
         shopItemsDraw();
         game.batch.end();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
@@ -165,20 +193,22 @@ public class ShopScreen implements Screen {
         }
     }
 
-    public void showWallet(int points) {
+    private void showWallet(int points) {
         tensPlace = points/10;
         onesPlace = points-(tensPlace*10);
         tens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
         ones = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
+        game.batch.draw(tens, 524, 898, 48, 84);
+        game.batch.draw(ones, 572, 898, 48, 84);
     }
 
-    public void shopItemsDraw() {
+    private void shopItemsDraw() {
         for(int i = 0; i < AMOUNT; i++) {
             if(i%2 == 0) {
-                game.batch.draw(shopItems[i], 112-shopItems[i].getWidth()/2+(160*i), 615, 128, 128);
+                game.batch.draw(shopItems[i], 160-(192/2)+(160*i), 590, 192, 192);
             }
             else {
-                game.batch.draw(shopItems[i], 112-shopItems[i].getWidth()/2+(160*(i-1)), 200, 128, 128);
+                game.batch.draw(shopItems[i], 160-(192/2)+(160*(i-1)), 175, 192, 192);
             }
             }
         }

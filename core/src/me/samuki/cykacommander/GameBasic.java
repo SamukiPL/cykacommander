@@ -33,50 +33,25 @@ public class GameBasic {
     public GameBasic() {
         //SHIP ANIMATION
         int whichShip = CykaGame.prefs.getInteger("whichShip", 0);
-        Texture tmpTexture = new Texture("ship_sprites/ship_sprite_"+whichShip+".png");
-        TextureRegion[][] tmp = TextureRegion.split(tmpTexture, tmpTexture.getWidth(), tmpTexture.getHeight()/SPRITE_ROWS);
-        shipFrames = new TextureRegion[SPRITE_COLS*SPRITE_ROWS];
-        for (int i = 0; i < SPRITE_ROWS; i++){
-            for (int j = 0; j < SPRITE_COLS; j++){
-                shipFrames[i] = tmp[i][j];
-            }
-        }
-        shipAnimation = new Animation(1f,shipFrames);
+        shipAnimation = spriteCutting("ship_sprites/ship_sprite_"+whichShip+".png", SPRITE_COLS, SPRITE_ROWS);
 
 
         //PIPE SPRITE
-        tmpTexture = new Texture("cykapipe.png");
-        tmp = TextureRegion.split(tmpTexture, tmpTexture.getWidth(), tmpTexture.getHeight()/SPRITE_ROWS);
-        pipeFrames = new TextureRegion[SPRITE_COLS*SPRITE_ROWS];
-        for (int i = 0; i < SPRITE_ROWS; i++){
-            for(int j = 0; j < SPRITE_COLS; j++){
-                pipeFrames[i] = tmp[i][j];
-            }
-        }
-        pipeAnimation = new Animation(1f,pipeFrames);
+        pipeAnimation = spriteCutting("cykapipe.png", SPRITE_COLS, SPRITE_ROWS);
 
         //NUMBERS BITMAP
         hudPoints = new Texture("frame.png");
-        tmpTexture = new Texture("numbers_bitmap.png");
-        tmp = TextureRegion.split(tmpTexture, tmpTexture.getWidth()/NUMBERS_COLS, tmpTexture.getHeight()/NUMBERS_ROWS);
-        numbersFrames = new TextureRegion[NUMBERS_COLS*NUMBERS_ROWS];
-        int index = 0;
-        for(int i = 0; i < NUMBERS_ROWS; i++) {
-            for(int j = 0; j < NUMBERS_COLS; j++) {
-                numbersFrames[index++] = tmp[i][j];
-            }
-        }
-        numbersAnimation = new Animation(1f, numbersFrames);
+        numbersAnimation = spriteCutting("numbers_bitmap.png", NUMBERS_COLS, NUMBERS_ROWS);
     }
 
-    public void spawnLine(float y, Array<Rectangle> frontPipes, Array<Rectangle> backPipes) {
+    void spawnLine(float y, Array<Rectangle> frontPipes, Array<Rectangle> backPipes) {
         int frontWidth = MathUtils.random(640-128-50);
         Rectangle frontPipe = new Rectangle(0,y,frontWidth,50);
         Rectangle backPipe = new Rectangle(frontWidth+128+50,y,462-frontWidth,50);
         frontPipes.add(frontPipe);
         backPipes.add(backPipe);
     }
-    public boolean hitbox(Circle eggLeft, Circle eggRight, Rectangle...rects ) {
+    boolean hitbox(Circle eggLeft, Circle eggRight, Rectangle... rects) {
         return  Intersector.overlaps(eggLeft, rects[0]) ||
                 Intersector.overlaps(eggRight, rects[1]) ||
                 Intersector.overlaps(rects[2], rects[0]) ||
@@ -85,7 +60,7 @@ public class GameBasic {
                 Intersector.overlaps(rects[3], rects[1]);
         //rects[0] = frontPipe, rects[1] = backPipe, rects[2] = engines, rects[3] = body
     }
-    public void pipeDraw(Array<Rectangle> frontPipes, Array<Rectangle> backPipes, CykaGame game) {
+    void pipeDraw(Array<Rectangle> frontPipes, Array<Rectangle> backPipes, CykaGame game) {
         //PIPES DRAWING
         for (Rectangle frontPipe: frontPipes) {
             pipeCurrentFrame = pipeAnimation.getKeyFrame(2, true);
@@ -104,10 +79,24 @@ public class GameBasic {
             }
         }
     }
-    public void shipSpriteChange(int a) {
+    //SPRITES
+    Animation spriteCutting(String textureName, int cols, int rows) {
+        Texture tmpTexture = new Texture(textureName);
+        TextureRegion[][] tmp = TextureRegion.split(tmpTexture, tmpTexture.getWidth()/ cols, tmpTexture.getHeight()/rows);
+        TextureRegion[] tmpFrames = new TextureRegion[cols*rows];
+        int index = 0;
+        for (int i = 0; i < rows; i++){
+            for (int j = 0; j < cols; j++){
+                tmpFrames[index] = tmp[i][j];
+                index++;
+            }
+        }
+        return new Animation(1f,tmpFrames);
+    }
+    void shipSpriteChange(int a) {
         shipCurrentFrame = shipAnimation.getKeyFrame(a, true);
     }
-    public void numbersDraw(int points, CykaGame game) {
+    void numbersDraw(int points, CykaGame game) {
         int tensPlace = points/10;
         int onesPlace = points-(tensPlace*10);
         numbersCurrentFrame = numbersAnimation.getKeyFrame(tensPlace, true);
@@ -117,10 +106,10 @@ public class GameBasic {
         game.batch.draw(hudPoints, 587, 953);
     }
     //DEATH SCREEN
-    public void getPoints(int points) {
+    void getPoints(int points) {
         GameBasic.points = points;
     }
-    public void dispose() {
+    void dispose() {
         hudPoints.dispose();
     }
 }
