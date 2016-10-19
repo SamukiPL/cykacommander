@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class DeathScreen implements Screen {
@@ -140,9 +141,16 @@ public class DeathScreen implements Screen {
     }
 
     public void numbersDeathScreen(int points) {
-        tensPlace = points/10;
-        onesPlace = points-(tensPlace*10);
-        tens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
-        ones = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
+        float deltaTime = 0.1f;
+        while(deltaTime > 10.0f) {
+            deltaTime += 60*Gdx.graphics.getDeltaTime();
+            tens = GameBasic.numbersAnimation.getKeyFrame(deltaTime, true);
+            ones = GameBasic.numbersAnimation.getKeyFrame(deltaTime, true);
+            System.out.println(deltaTime);
+        }
+            tensPlace = points / 10;
+            onesPlace = points - (tensPlace * 10);
+            tens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
+            ones = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
     }
 }

@@ -17,6 +17,8 @@ public class GameBasic {
     Animation shipAnimation;
     TextureRegion[] shipFrames;
     public TextureRegion shipCurrentFrame;
+    //BULLET SPRITE
+    Texture bulletSprite;
     //PIPE SPRITE
     public Animation pipeAnimation;
     TextureRegion[] pipeFrames;
@@ -35,6 +37,8 @@ public class GameBasic {
         int whichShip = CykaGame.prefs.getInteger("whichShip", 0);
         shipAnimation = spriteCutting("ship_sprites/ship_sprite_"+whichShip+".png", SPRITE_COLS, SPRITE_ROWS);
 
+        //BULLET SPRITE
+        bulletSprite = new Texture("use_button_0.png");
 
         //PIPE SPRITE
         pipeAnimation = spriteCutting("cykapipe.png", SPRITE_COLS, SPRITE_ROWS);
@@ -43,7 +47,7 @@ public class GameBasic {
         hudPoints = new Texture("frame.png");
         numbersAnimation = spriteCutting("numbers_bitmap.png", NUMBERS_COLS, NUMBERS_ROWS);
     }
-
+    //SPAWNS
     void spawnLine(float y, Array<Rectangle> frontPipes, Array<Rectangle> backPipes) {
         int frontWidth = MathUtils.random(640-128-50);
         Rectangle frontPipe = new Rectangle(0,y,frontWidth,50);
@@ -51,6 +55,14 @@ public class GameBasic {
         frontPipes.add(frontPipe);
         backPipes.add(backPipe);
     }
+    Rectangle spawnPoint(float y) {
+        int pointPossition = MathUtils.random(300);
+        return new Rectangle(pointPossition, y, 50, 50);
+    }
+    Rectangle spawnBullet(float x) {
+     return  new Rectangle(x+(128+50)/2, 128, 50, 50);
+    }
+    //HITBOXES
     boolean hitbox(Circle eggLeft, Circle eggRight, Rectangle... rects) {
         return  Intersector.overlaps(eggLeft, rects[0]) ||
                 Intersector.overlaps(eggRight, rects[1]) ||
@@ -60,6 +72,7 @@ public class GameBasic {
                 Intersector.overlaps(rects[3], rects[1]);
         //rects[0] = frontPipe, rects[1] = backPipe, rects[2] = engines, rects[3] = body
     }
+    //DRAWS
     void pipeDraw(Array<Rectangle> frontPipes, Array<Rectangle> backPipes, CykaGame game) {
         //PIPES DRAWING
         for (Rectangle frontPipe: frontPipes) {
@@ -78,6 +91,9 @@ public class GameBasic {
                 game.batch.draw(pipeCurrentFrame, i, backPipe.y-7);
             }
         }
+    }
+    void bulletDraw(CykaGame game, float x, float y) {
+            game.batch.draw(bulletSprite, x, y, 50, 50);
     }
     //SPRITES
     Animation spriteCutting(String textureName, int cols, int rows) {
@@ -111,5 +127,6 @@ public class GameBasic {
     }
     void dispose() {
         hudPoints.dispose();
+        bulletSprite.dispose();
     }
 }

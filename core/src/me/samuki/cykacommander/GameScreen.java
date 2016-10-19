@@ -4,12 +4,15 @@ package me.samuki.cykacommander;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -24,19 +27,26 @@ public class GameScreen implements Screen {
     Stage stage;
     FitViewport viewport;
     //CONTROLS
-    Actor leftControl, rightControl;
+    Actor leftControl, rightControl, shotControl;
     float gameSpeed, shipSpeed, shipAcceleration;
     boolean canILeft = false;
     boolean canIRight = false;
     //HITBOX COMPONENTS
     Rectangle bucket, engines, body;
     Circle eggLeft, eggRight;
+    //BULLET
+    Rectangle bulletRect;
+    boolean shotFired;
     //PIPES COORDINATES
     private Array<Rectangle> frontPipes, backPipes;
+    //POINTS COORDINATES
+    private Rectangle pointRect;
     //POINTS
     public static int points;
     //SOUND
     float volume;
+    //TEXTURES
+    Texture point;
 
     public GameScreen(CykaGame game) {
         this.game = game;
@@ -54,13 +64,19 @@ public class GameScreen implements Screen {
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
         //CONTROLS
+        shotControl = new Actor();
+        shotControl.setPosition(0,0);
+        shotControl.setSize(640,1024);
+        stage.addActor(shotControl);
+
         leftControl = new Actor();
         leftControl.setPosition(0,0);
-        leftControl.setSize(320,1024);
+        leftControl.setSize(320,400);
+        stage.addActor(leftControl);
+
         rightControl = new Actor();
         rightControl.setPosition(320,0);
-        rightControl.setSize(321,1024);
-        stage.addActor(leftControl);
+        rightControl.setSize(321,400);
         stage.addActor(rightControl);
         //GAME SETTINGS
         gameSpeed = 12000;
@@ -73,10 +89,23 @@ public class GameScreen implements Screen {
         basicThings.spawnLine(1086, frontPipes, backPipes);
         basicThings.spawnLine(1629, frontPipes, backPipes);
 
+        //POINTs
+        pointRect = basicThings.spawnPoint(1429);
+        point = new Texture("on_button.png");
+
         bucket = new Rectangle(640/2-128/2,10,128,128);
 
         basicThings.shipSpriteChange(1);
         //CONTROLS SET
+        shotControl.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(!shotFired) {
+                    bulletRect = basicThings.spawnBullet(bucket.x - 64);
+                    shotFired = true;
+                }
+            }
+        });
         rightControl.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 shipAcceleration = 0;
@@ -112,6 +141,9 @@ public class GameScreen implements Screen {
             }
         });
         Gdx.input.setCatchBackKey(true);
+
+
+
         //SOUNDS
         if(CykaGame.prefs.getBoolean("sound", true))
             volume = 1f;
@@ -129,11 +161,13 @@ public class GameScreen implements Screen {
 
         game.batch.begin();
         game.batch.draw(basicThings.shipCurrentFrame,bucket.x,bucket.y);
+        game.batch.draw(point, pointRect.x, pointRect.y, 50, 50);
         basicThings.pipeDraw(frontPipes, backPipes, game);
+        if(shotFired)
+            basicThings.bulletDraw(game, bulletRect.x, bulletRect.y);
         basicThings.numbersDraw(points, game);
         game.batch.end();
-        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/60f));
-        stage.draw();
+
     }
 
     @Override
@@ -155,7 +189,7 @@ public class GameScreen implements Screen {
         basicThings.dispose();
     }
 
-    public void gameLogic() {
+    private void gameLogic() {
         //HITBOX SETTINGS
         eggLeft = new Circle(bucket.x+32, bucket.y+26, 26);
         eggRight = new Circle(bucket.x+95, bucket.y+26, 26);
@@ -192,7 +226,23 @@ public class GameScreen implements Screen {
                 sounds.deathSound.play(volume);
                 game.setScreen(new DeathScreen(game));
             }
+
+            if(shotFired) {
+                bulletRect.y += gameSpeed*3*(Gdx.graphics.getDeltaTime()/60);
+                if(Intersector.overlaps(bulletRect, pointRect)) {
+                    System.out.println("TAK");
+                    shotFired = false;
+                }
+                else if(Intersector.overlaps(bulletRect, frontPipe) || Intersector.overlaps(bulletRect, backPipe) || bulletRect.y >=1074); {
+                    shotFired = false;
+                }
+
+            }
         }
+        //POINTS
+        pointRect.y -= gameSpeed*(Gdx.graphics.getDeltaTime()/60);
+        if(pointRect.y <= -50)
+            pointRect = basicThings.spawnPoint(1022);
         gameSpeed += 60000*Gdx.graphics.getDeltaTime()/60;
     }
 }
