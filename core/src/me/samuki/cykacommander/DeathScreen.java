@@ -2,7 +2,6 @@ package me.samuki.cykacommander;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,57 +11,42 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Scaling;
-import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
-public class DeathScreen implements Screen {
-    CykaGame game;
-    Stage stage;
-    FitViewport viewport;
-    //PLAY AGAIN
-    Skin playAgainSkin;
-    ImageButton.ImageButtonStyle playAgainButtonStyle;
-    //MENU
-    Skin menuSkin;
-    ImageButton.ImageButtonStyle menuButtonStyle;
+class DeathScreen implements Screen {
+    private CykaGame game;
+    private Stage stage;
     //NUMBERS
-    int points;
-    int tensPlace;
-    int onesPlace;
-    TextureRegion tens;
-    TextureRegion ones;
+    private int points;
+    private TextureRegion tens;
+    private TextureRegion ones;
     //PREFERENCES
-    int bestScore;
-    int cash;
+    private int bestScore;
 
-    public DeathScreen(CykaGame game) {
+    DeathScreen(CykaGame game) {
         this.game = game;
     }
 
     @Override
     public void show() {
         //VIEWPORT
-        viewport = new FitViewport(game.SCREEN_WIDTH, game.SCREEN_HEIGHT, game.camera);
+        FitViewport viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
         //STAGE
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
         //PLAY AGAIN
-        playAgainSkin = new Skin();
+        Skin playAgainSkin = new Skin();
         playAgainSkin.add("play_again", new Texture("play_button.png"));
-        playAgainButtonStyle = new ImageButton.ImageButtonStyle();
-        playAgainButtonStyle.up = playAgainSkin.newDrawable("play_again", Color.LIGHT_GRAY);
 
-        final ImageButton playAgainButton = new ImageButton(playAgainButtonStyle);
+        final ImageButton playAgainButton = new ImageButton(playAgainSkin.getDrawable("play_again"));
         playAgainButton.setPosition(viewport.getWorldWidth()/2-playAgainButton.getWidth()/2,450);
         stage.addActor(playAgainButton);
         //MENU
-        menuSkin = new Skin();
+        Skin menuSkin = new Skin();
         menuSkin.add("menu", new Texture("menu_button.png"));
-        menuButtonStyle = new ImageButton.ImageButtonStyle();
-        menuButtonStyle.up = menuSkin.newDrawable("menu", Color.LIGHT_GRAY);
 
-        final ImageButton menuButton = new ImageButton(menuButtonStyle);
+        final ImageButton menuButton = new ImageButton(menuSkin.getDrawable("menu"));
         menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,350);
         stage.addActor(menuButton);
         //PREFERENCES
@@ -72,14 +56,6 @@ public class DeathScreen implements Screen {
         if(points > bestScore) {
             CykaGame.prefs.putInteger("best-score", points);
             bestScore = points;
-            CykaGame.prefs.flush();
-        }
-        //CASH
-        cash = CykaGame.prefs.getInteger("cash", 0);
-        for(int i = 0; i <= (points-5); i+=5) {
-            cash++;
-            CykaGame.prefs.putInteger("cash", cash);
-            System.out.println(cash+"TAK");
             CykaGame.prefs.flush();
         }
         //BUTTONS INPUT
@@ -140,17 +116,15 @@ public class DeathScreen implements Screen {
         stage.dispose();
     }
 
-    public void numbersDeathScreen(int points) {
-        float deltaTime = 0.1f;
-        while(deltaTime > 10.0f) {
-            deltaTime += 60*Gdx.graphics.getDeltaTime();
-            tens = GameBasic.numbersAnimation.getKeyFrame(deltaTime, true);
-            ones = GameBasic.numbersAnimation.getKeyFrame(deltaTime, true);
-            System.out.println(deltaTime);
-        }
-            tensPlace = points / 10;
-            onesPlace = points - (tensPlace * 10);
-            tens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
-            ones = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
+    private void numbersDeathScreen(int points) {
+        /*new Timer().scheduleTask(new Timer.Task(){
+            @Override
+            public void run() {
+            }
+        }, 10, 0.1f);*/
+        int tensPlace = points / 10;
+        int onesPlace = points - (tensPlace * 10);
+        tens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
+        ones = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
     }
 }

@@ -13,35 +13,32 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 
-public class SettingsScreen implements Screen {
-    CykaGame game;
-    Stage stage;
-    FitViewport viewport;
+class SettingsScreen implements Screen {
+    private CykaGame game;
+    private Stage stage;
     //SETTINGS VALUES
-    public boolean soundOn;
-    //BUTTONS SKINS
-    Skin onOffSkin;
-    Skin backSkin;
+    private boolean soundOn;
+    private boolean controlsOn;
     //OPTIONS TEXT
-    Texture soundText;
+    private Texture soundText;
 
-    public SettingsScreen(CykaGame game) {
+    SettingsScreen(CykaGame game) {
         this.game = game;
     }
 
     @Override
     public void show() {
         //VIEWPORT
-        viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
+        FitViewport viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
         //STAGE
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
         //SETTINGS VALUES
         soundOn = CykaGame.prefs.getBoolean("sound", true);
-        System.out.println(soundOn);
+        controlsOn = CykaGame.prefs.getBoolean("controls_on", true);
         //ON/OFF
-        onOffSkin = new Skin();
+        Skin onOffSkin = new Skin();
         onOffSkin.add("on", new Texture("on_button.png"));
         onOffSkin.add("off", new Texture("off_button.png"));
 
@@ -49,8 +46,13 @@ public class SettingsScreen implements Screen {
         buttonSound.setChecked(soundOn);
         buttonSound.setPosition(450, 800);
         stage.addActor(buttonSound);
+
+        final ImageButton buttonControls = new ImageButton(onOffSkin.getDrawable("off"), onOffSkin.getDrawable("off"), onOffSkin.getDrawable("on"));
+        buttonControls.setChecked(controlsOn);
+        buttonControls.setPosition(450, 650);
+        stage.addActor(buttonControls);
         //BACK
-        backSkin = new Skin();
+        Skin backSkin = new Skin();
         backSkin.add("back", new Texture("back_button.png"));
 
         final ImageButton backButton = new ImageButton(backSkin.getDrawable("back"), backSkin.getDrawable("back"));
@@ -65,7 +67,14 @@ public class SettingsScreen implements Screen {
                 CykaGame.prefs.putBoolean("sound", !soundOn);
                 CykaGame.prefs.flush();
                 soundOn = CykaGame.prefs.getBoolean("sound");
-                System.out.println(soundOn);
+            }
+        });
+        buttonControls.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                CykaGame.prefs.putBoolean("controls_on", !controlsOn);
+                CykaGame.prefs.flush();
+                controlsOn = CykaGame.prefs.getBoolean("controls_on");
             }
         });
         backButton.addListener(new ChangeListener() {

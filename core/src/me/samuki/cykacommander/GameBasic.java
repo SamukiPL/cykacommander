@@ -32,7 +32,7 @@ public class GameBasic {
     public Texture hudPoints;
     public static int points;
 
-    public GameBasic() {
+    GameBasic() {
         //SHIP ANIMATION
         int whichShip = CykaGame.prefs.getInteger("whichShip", 0);
         shipAnimation = spriteCutting("ship_sprites/ship_sprite_"+whichShip+".png", SPRITE_COLS, SPRITE_ROWS);
@@ -48,8 +48,12 @@ public class GameBasic {
         numbersAnimation = spriteCutting("numbers_bitmap.png", NUMBERS_COLS, NUMBERS_ROWS);
     }
     //SPAWNS
-    void spawnLine(float y, Array<Rectangle> frontPipes, Array<Rectangle> backPipes) {
+    void spawnLine(float y, int lastWidth, Array<Rectangle> frontPipes, Array<Rectangle> backPipes) {
         int frontWidth = MathUtils.random(640-128-50);
+        while(frontWidth > (lastWidth-200) && frontWidth < (lastWidth+200)) {
+            frontWidth = MathUtils.random(640-128-50);
+        }
+        System.out.println(frontWidth+" "+lastWidth);
         Rectangle frontPipe = new Rectangle(0,y,frontWidth,50);
         Rectangle backPipe = new Rectangle(frontWidth+128+50,y,462-frontWidth,50);
         frontPipes.add(frontPipe);
@@ -60,7 +64,7 @@ public class GameBasic {
         return new Rectangle(pointPossition, y, 50, 50);
     }
     Rectangle spawnBullet(float x) {
-     return  new Rectangle(x+(128+50)/2, 128, 50, 50);
+     return  new Rectangle(x+(128/2)-(50/2), 128, 50, 50);
     }
     //HITBOXES
     boolean hitbox(Circle eggLeft, Circle eggRight, Rectangle... rects) {

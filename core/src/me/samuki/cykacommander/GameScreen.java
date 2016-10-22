@@ -3,6 +3,7 @@ package me.samuki.cykacommander;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
@@ -20,35 +21,39 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import java.util.Iterator;
 
 public class GameScreen implements Screen {
-    CykaGame game;
-    GameBasic basicThings;
-    SoundsBase sounds;
+    private CykaGame game;
+    private GameBasic basicThings;
+    private SoundsBase sounds;
     //INPUT PROCESSOR
-    Stage stage;
-    FitViewport viewport;
+    private Stage stage;
     //CONTROLS
     Actor leftControl, rightControl, shotControl;
-    float gameSpeed, shipSpeed, shipAcceleration;
-    boolean canILeft = false;
-    boolean canIRight = false;
+    private float gameSpeed, shipSpeed, shipAcceleration;
+    private boolean canILeft = false;
+    private boolean canIRight = false;
+    private Texture[] controlsTexture;
     //HITBOX COMPONENTS
-    Rectangle bucket, engines, body;
-    Circle eggLeft, eggRight;
+    private Rectangle bucket, engines, body;
+    private Circle eggLeft, eggRight;
     //BULLET
-    Rectangle bulletRect;
-    boolean shotFired;
+    private Rectangle bulletRect;
+    private boolean shotFired;
     //PIPES COORDINATES
     private Array<Rectangle> frontPipes, backPipes;
+    private boolean makePipe;
+    private int pipeY;
     //POINTS COORDINATES
     private Rectangle pointRect;
-    //POINTS
-    public static int points;
+    private Texture point;
+    private boolean pointHit;
+    private int howManyCash;
+    //POINTS/SCORE
+    static int points;
     //SOUND
-    float volume;
-    //TEXTURES
-    Texture point;
+    private float volume;
 
-    public GameScreen(CykaGame game) {
+
+    GameScreen(CykaGame game) {
         this.game = game;
     }
 
@@ -58,26 +63,32 @@ public class GameScreen implements Screen {
         basicThings = new GameBasic();
         sounds = new SoundsBase();
         //VIEWPORT
-        viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
+        FitViewport viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
         //STAGE
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
         //CONTROLS
         shotControl = new Actor();
-        shotControl.setPosition(0,0);
+        shotControl.setPosition(0,300);
         shotControl.setSize(640,1024);
         stage.addActor(shotControl);
 
         leftControl = new Actor();
         leftControl.setPosition(0,0);
-        leftControl.setSize(320,400);
+        leftControl.setSize(320,300);
         stage.addActor(leftControl);
 
         rightControl = new Actor();
         rightControl.setPosition(320,0);
-        rightControl.setSize(321,400);
+        rightControl.setSize(321,300);
         stage.addActor(rightControl);
+
+        controlsTexture = new Texture[3];
+        for(int i = 0; i < 3; i++) {
+            Texture tmpControl = new Texture("control_"+i+".png");
+            controlsTexture[i] = tmpControl;
+        }
         //GAME SETTINGS
         gameSpeed = 12000;
         shipSpeed = 0;
@@ -86,22 +97,25 @@ public class GameScreen implements Screen {
         //PIPES ARRAYS
         frontPipes = new Array<Rectangle>();
         backPipes = new Array<Rectangle>();
-        basicThings.spawnLine(1086, frontPipes, backPipes);
-        basicThings.spawnLine(1629, frontPipes, backPipes);
-
-        //POINTs
-        pointRect = basicThings.spawnPoint(1429);
+        basicThings.spawnLine(1086, -220, frontPipes, backPipes);
+        makePipe = true;
+        pipeY = 1729;
+        //POINTS
+        pointRect = basicThings.spawnPoint(1629);
         point = new Texture("on_button.png");
+        pointHit = false;
+        howManyCash = 1;
 
         bucket = new Rectangle(640/2-128/2,10,128,128);
 
         basicThings.shipSpriteChange(1);
         //CONTROLS SET
+        shotFired = false;
         shotControl.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if(!shotFired) {
-                    bulletRect = basicThings.spawnBullet(bucket.x - 64);
+                    bulletRect = basicThings.spawnBullet(bucket.x);
                     shotFired = true;
                 }
             }
@@ -158,10 +172,23 @@ public class GameScreen implements Screen {
 
         gameLogic();
         basicThings.getPoints(points);
-
         game.batch.begin();
+        if(CykaGame.prefs.getBoolean("controls_on", true)) {
+            //CONTROLS COLOR...
+            Color color = game.batch.getColor();
+            float oldAlpha = color.a;
+            color.a = 0.2f;
+            game.batch.setColor(color);
+            game.batch.draw(controlsTexture[0], 0, 0, 320, 300);
+            game.batch.draw(controlsTexture[1], 320, 0, 320, 300);
+            game.batch.draw(controlsTexture[2], 0, 300, 640, 1024);
+            color.a = oldAlpha;
+            game.batch.setColor(color);
+        }
+
         game.batch.draw(basicThings.shipCurrentFrame,bucket.x,bucket.y);
-        game.batch.draw(point, pointRect.x, pointRect.y, 50, 50);
+        if(!pointHit)
+            game.batch.draw(point, pointRect.x, pointRect.y, 50, 50);
         basicThings.pipeDraw(frontPipes, backPipes, game);
         if(shotFired)
             basicThings.bulletDraw(game, bulletRect.x, bulletRect.y);
@@ -214,13 +241,21 @@ public class GameScreen implements Screen {
         while(frontIter.hasNext()){
             Rectangle frontPipe = frontIter.next();
             Rectangle backPipe = backIter.next();
+            if(makePipe) {
+                basicThings.spawnLine(pipeY, (int)frontPipe.width, frontPipes, backPipes);
+                pipeY = 1122;
+                makePipe = false;
+            }
             frontPipe.y -= gameSpeed*(Gdx.graphics.getDeltaTime()/60);
             backPipe.y = frontPipe.y;
             if(frontPipe.y < -64) {
+                makePipe = true;
+
                 frontIter.remove();
                 backIter.remove();
-                basicThings.spawnLine(1022, frontPipes, backPipes);
                 points++;
+                //CASH
+                howManyCash = 1+(points/10);
             }
             if (basicThings.hitbox(eggLeft, eggRight, frontPipe, backPipe, engines, body)) {
                 sounds.deathSound.play(volume);
@@ -230,19 +265,26 @@ public class GameScreen implements Screen {
             if(shotFired) {
                 bulletRect.y += gameSpeed*3*(Gdx.graphics.getDeltaTime()/60);
                 if(Intersector.overlaps(bulletRect, pointRect)) {
-                    System.out.println("TAK");
+                    pointHit = true;
+                    shotFired = false;
+                    int cash = CykaGame.prefs.getInteger("cash", 0)+howManyCash;
+                    CykaGame.prefs.putInteger("cash", cash);
+                    CykaGame.prefs.flush();
+                }
+                if(Intersector.overlaps(bulletRect, frontPipe) || Intersector.overlaps(bulletRect, backPipe) || bulletRect.y >= 1074) {
                     shotFired = false;
                 }
-                else if(Intersector.overlaps(bulletRect, frontPipe) || Intersector.overlaps(bulletRect, backPipe) || bulletRect.y >=1074); {
-                    shotFired = false;
-                }
+
 
             }
         }
         //POINTS
         pointRect.y -= gameSpeed*(Gdx.graphics.getDeltaTime()/60);
-        if(pointRect.y <= -50)
-            pointRect = basicThings.spawnPoint(1022);
+        if(pointRect.y <= -50) {
+            pointRect = basicThings.spawnPoint(1122);
+            pointHit = false;
+        }
+
         gameSpeed += 60000*Gdx.graphics.getDeltaTime()/60;
     }
 }
