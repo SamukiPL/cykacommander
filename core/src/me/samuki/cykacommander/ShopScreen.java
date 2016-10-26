@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Scaling;
@@ -17,7 +19,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 class ShopScreen implements Screen {
     private CykaGame game;
-    GameBasic basic;
+    private GameBasic basic;
     private Stage stage;
     private FitViewport viewport;
     //BACKGROUND
@@ -26,9 +28,11 @@ class ShopScreen implements Screen {
     private int cash;
     private ImageButton.ImageButtonStyle useButton;
     //SHOP PRICES
-    private static final int PRICE_CHANGE = 0;
+    private static final int PRICE_CHANGE = 1;
     //SHOPITEMS
-    private static final int AMOUNT = 2; //Ships for sale
+    private static final int AMOUNT = 6; //Ships for sale
+    private int shopPage;
+    private boolean setButtons;
 
     private boolean[] isBought;
     private Texture[] shopItems;
@@ -48,15 +52,35 @@ class ShopScreen implements Screen {
         //STAGE
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
-        //BACK
-        Skin backSkin = new Skin();
-        backSkin.add("back", new Texture("back_button.png"));
-
-        final ImageButton backButton = new ImageButton(backSkin.getDrawable("back"), backSkin.getDrawable("back"));
-        backButton.setPosition(10, viewport.getWorldHeight()-backButton.getHeight()-10);
-        stage.addActor(backButton);
         //BACKGROUND
         background = new Texture("shop_background.png");
+        //PAGE CHANGE
+        setButtons = true;
+        Actor actor = new Actor();
+        actor.setPosition(0, 0);
+        actor.setSize(640, 1024);
+        stage.addActor(actor);
+        actor.addListener(new ActorGestureListener() {
+            public void fling (InputEvent event, float velocityX, float velocityY, int button) {
+                if(velocityX > 0) {
+                    shopPage--;
+                    for (ImageButton shopButton : shopButtons) {
+                        shopButton.setVisible(false);
+                        shopButton.setTouchable(Touchable.disabled);
+                        setButtons = true;
+                    }
+                }
+                else if(velocityX < 0) {
+                    shopPage++;
+                    for (ImageButton shopButton : shopButtons) {
+                        shopButton.setVisible(false);
+                        shopButton.setTouchable(Touchable.disabled);
+                        setButtons = true;
+                    }
+                }
+            }
+        });
+
         //CASH
         cash = CykaGame.prefs.getInteger("cash", 0);
         //SHOP ITEMS
@@ -66,6 +90,8 @@ class ShopScreen implements Screen {
         shopItems = new Texture[AMOUNT];
         shopButtons = new ImageButton[AMOUNT];
         price = new int[AMOUNT];
+
+        shopPage = 0;
 
         Skin buyUseSkin = new Skin();
         //BUY BUTTON STYLE
@@ -94,13 +120,8 @@ class ShopScreen implements Screen {
                 shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
                 shopButtons[index] = new ImageButton(useButton);
             }
-
-            if(i%2 == 0) {
-                shopButtons[index].setPosition(160 - (shopButtons[index].getWidth()/2) + (160 * index), 465);
-            }
-            else {
-                shopButtons[index].setPosition(160 - (shopButtons[index].getWidth()/2) + (160 * (index-1)), 50);
-            }
+            shopButtons[index].setVisible(false);
+            shopButtons[index].setTouchable(Touchable.disabled);
             stage.addActor(shopButtons[index]);
 
             price[index] = PRICE_CHANGE+(PRICE_CHANGE*index);
@@ -137,6 +158,14 @@ class ShopScreen implements Screen {
         }
 
         shopButtons[CykaGame.prefs.getInteger("whichShip", 0)].setChecked(true);
+
+        //BACK
+        Skin backSkin = new Skin();
+        backSkin.add("back", new Texture("back_button.png"));
+
+        final ImageButton backButton = new ImageButton(backSkin.getDrawable("back"), backSkin.getDrawable("back"));
+        backButton.setPosition(10, viewport.getWorldHeight()-backButton.getHeight()-10);
+        stage.addActor(backButton);
 
         backButton.addListener(new ChangeListener() {
             @Override
@@ -182,9 +211,11 @@ class ShopScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+        background.dispose();
         for(int i = 0; i < AMOUNT; i++) {
             shopItems[i].dispose();
         }
+        basic.dispose();
     }
 
     private void showWallet(int points) {
@@ -197,12 +228,27 @@ class ShopScreen implements Screen {
     }
 
     private void shopItemsDraw() {
-        for(int i = 0; i < AMOUNT; i++) {
-            if(i%2 == 0) {
-                game.batch.draw(shopItems[i], 160-(192/2)+(160*i), 590, 192, 192);
+
+        if(shopPage > AMOUNT/2-1){
+            shopPage = 0;
+        }
+        if(shopPage < 0) {
+            shopPage = AMOUNT/2-1;
+        }
+        int row = shopPage*2;
+        for(int i = 0; i < 4; i++) {
+            int item = i+row;
+            if(item > 5) {
+                row = -2;
+                item = i+row;
             }
-            else {
-                game.batch.draw(shopItems[i], 160-(192/2)+(160*(i-1)), 175, 192, 192);
+            game.batch.draw(shopItems[item], 160-(192/2)+(160*(i-(i%2))), 590-(415*(i%2)), 192, 192);
+            shopButtons[item].setPosition(160 - (shopButtons[item].getWidth()/2) + (160*(i-(i%2))), 465-(415*(i%2)));
+            if(setButtons) {
+                shopButtons[item].setVisible(true);
+                shopButtons[item].setTouchable(Touchable.enabled);
+                if(i == 3)
+                    setButtons = false;
             }
             }
         }

@@ -20,14 +20,14 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.util.Iterator;
 
-public class GameScreen implements Screen {
+class GameScreen implements Screen {
     private CykaGame game;
     private GameBasic basicThings;
     private SoundsBase sounds;
     //INPUT PROCESSOR
     private Stage stage;
     //CONTROLS
-    Actor leftControl, rightControl, shotControl;
+    private Actor leftControl, rightControl, shotControl;
     private float gameSpeed, shipSpeed, shipAcceleration;
     private boolean canILeft = false;
     private boolean canIRight = false;
@@ -70,18 +70,18 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         //CONTROLS
         shotControl = new Actor();
-        shotControl.setPosition(0,300);
+        shotControl.setPosition(0,250);
         shotControl.setSize(640,1024);
         stage.addActor(shotControl);
 
         leftControl = new Actor();
         leftControl.setPosition(0,0);
-        leftControl.setSize(320,300);
+        leftControl.setSize(320,250);
         stage.addActor(leftControl);
 
         rightControl = new Actor();
         rightControl.setPosition(320,0);
-        rightControl.setSize(321,300);
+        rightControl.setSize(321,250);
         stage.addActor(rightControl);
 
         controlsTexture = new Texture[3];
@@ -179,9 +179,9 @@ public class GameScreen implements Screen {
             float oldAlpha = color.a;
             color.a = 0.2f;
             game.batch.setColor(color);
-            game.batch.draw(controlsTexture[0], 0, 0, 320, 300);
-            game.batch.draw(controlsTexture[1], 320, 0, 320, 300);
-            game.batch.draw(controlsTexture[2], 0, 300, 640, 1024);
+            game.batch.draw(controlsTexture[0], leftControl.getX(), leftControl.getY(), leftControl.getWidth(), leftControl.getHeight());
+            game.batch.draw(controlsTexture[1], rightControl.getX(), rightControl.getY(), rightControl.getWidth(), rightControl.getHeight());
+            game.batch.draw(controlsTexture[2], shotControl.getX(), shotControl.getY(), shotControl.getWidth(), shotControl.getHeight());
             color.a = oldAlpha;
             game.batch.setColor(color);
         }
@@ -214,6 +214,9 @@ public class GameScreen implements Screen {
         stage.dispose();
         sounds.dispose();
         basicThings.dispose();
+        for (Texture aControlsTexture : controlsTexture) {
+            aControlsTexture.dispose();
+        }
     }
 
     private void gameLogic() {
@@ -284,7 +287,6 @@ public class GameScreen implements Screen {
             pointRect = basicThings.spawnPoint(1122);
             pointHit = false;
         }
-
         gameSpeed += 60000*Gdx.graphics.getDeltaTime()/60;
     }
 }

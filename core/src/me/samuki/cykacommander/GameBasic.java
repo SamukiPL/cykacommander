@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
-public class GameBasic {
+class GameBasic {
     //SPRITE
     private static final int SPRITE_COLS = 1;
     private static final int SPRITE_ROWS = 3;
@@ -100,7 +100,7 @@ public class GameBasic {
             game.batch.draw(bulletSprite, x, y, 50, 50);
     }
     //SPRITES
-    Animation spriteCutting(String textureName, int cols, int rows) {
+    private Animation spriteCutting(String textureName, int cols, int rows) {
         Texture tmpTexture = new Texture(textureName);
         TextureRegion[][] tmp = TextureRegion.split(tmpTexture, tmpTexture.getWidth()/ cols, tmpTexture.getHeight()/rows);
         TextureRegion[] tmpFrames = new TextureRegion[cols*rows];
