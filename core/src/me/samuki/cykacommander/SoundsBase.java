@@ -3,15 +3,15 @@ package me.samuki.cykacommander;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 
-public class SoundsBase {
+class SoundsBase {
 
-    public Sound deathSound;
+    Sound deathSound;
 
-    public SoundsBase() {
+    SoundsBase() {
         deathSound = Gdx.audio.newSound(Gdx.files.internal("cyka.ogg"));
     }
 
-    public void dispose() {
+    void dispose() {
         deathSound.dispose();
     }
 }

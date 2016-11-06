@@ -171,21 +171,9 @@ class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         gameLogic();
-        basicThings.getPoints(points);
         game.batch.begin();
-        if(CykaGame.prefs.getBoolean("controls_on", true)) {
-            //CONTROLS COLOR...
-            Color color = game.batch.getColor();
-            float oldAlpha = color.a;
-            color.a = 0.2f;
-            game.batch.setColor(color);
-            game.batch.draw(controlsTexture[0], leftControl.getX(), leftControl.getY(), leftControl.getWidth(), leftControl.getHeight());
-            game.batch.draw(controlsTexture[1], rightControl.getX(), rightControl.getY(), rightControl.getWidth(), rightControl.getHeight());
-            game.batch.draw(controlsTexture[2], shotControl.getX(), shotControl.getY(), shotControl.getWidth(), shotControl.getHeight());
-            color.a = oldAlpha;
-            game.batch.setColor(color);
-        }
-
+        if(CykaGame.prefs.getBoolean("controls_on", true))
+            controlsDraw();
         game.batch.draw(basicThings.shipCurrentFrame,bucket.x,bucket.y);
         if(!pointHit)
             game.batch.draw(point, pointRect.x, pointRect.y, 50, 50);
@@ -288,5 +276,18 @@ class GameScreen implements Screen {
             pointHit = false;
         }
         gameSpeed += 60000*Gdx.graphics.getDeltaTime()/60;
+    }
+
+    private void controlsDraw() {
+        //CONTROLS COLOR...
+        Color color = game.batch.getColor();
+        float oldAlpha = color.a;
+        color.a = 0.2f;
+        game.batch.setColor(color);
+        game.batch.draw(controlsTexture[0], leftControl.getX(), leftControl.getY(), leftControl.getWidth(), leftControl.getHeight());
+        game.batch.draw(controlsTexture[1], rightControl.getX(), rightControl.getY(), rightControl.getWidth(), rightControl.getHeight());
+        game.batch.draw(controlsTexture[2], shotControl.getX(), shotControl.getY(), shotControl.getWidth(), shotControl.getHeight());
+        color.a = oldAlpha;
+        game.batch.setColor(color);
     }
 }

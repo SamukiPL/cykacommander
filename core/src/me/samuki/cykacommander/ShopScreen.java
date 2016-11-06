@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 class ShopScreen implements Screen {
@@ -26,6 +27,8 @@ class ShopScreen implements Screen {
     private Texture background;
     //CASH
     private int cash;
+    private int tensPlace, onesPlace;
+
     private ImageButton.ImageButtonStyle useButton;
     //SHOP PRICES
     private static final int PRICE_CHANGE = 1;
@@ -62,7 +65,7 @@ class ShopScreen implements Screen {
         stage.addActor(actor);
         actor.addListener(new ActorGestureListener() {
             public void fling (InputEvent event, float velocityX, float velocityY, int button) {
-                if(velocityX > 0) {
+                if(velocityX > 1000) {
                     shopPage--;
                     for (ImageButton shopButton : shopButtons) {
                         shopButton.setVisible(false);
@@ -70,7 +73,7 @@ class ShopScreen implements Screen {
                         setButtons = true;
                     }
                 }
-                else if(velocityX < 0) {
+                else if(velocityX < -1000) {
                     shopPage++;
                     for (ImageButton shopButton : shopButtons) {
                         shopButton.setVisible(false);
@@ -83,8 +86,10 @@ class ShopScreen implements Screen {
 
         //CASH
         cash = CykaGame.prefs.getInteger("cash", 0);
+        tensPlace = cash / 10;
+        onesPlace = cash - (tensPlace * 10);
         //SHOP ITEMS
-        CykaGame.prefs.putBoolean("isBought_0", true);
+        CykaGame.prefs.putBoolean("isBought_0", true); //FIRST SHIP
         CykaGame.prefs.flush();
         isBought = new boolean[AMOUNT];
         shopItems = new Texture[AMOUNT];
@@ -132,7 +137,10 @@ class ShopScreen implements Screen {
                     if(!isBought[index]) {
                         //IF NOT BOUGHT
                         if(cash >= price[index]) {
+                            int tmpCash = cash;
                             cash-=price[index];
+                            //SHOWING DECREASED CASH
+                            cashDecrease(tmpCash, cash);
                             CykaGame.prefs.putInteger("cash", cash);
                             CykaGame.prefs.putBoolean("isBought_"+index, true);
                             isBought[index] = true;
@@ -182,7 +190,7 @@ class ShopScreen implements Screen {
 
         game.batch.begin();
         game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        showWallet(cash);
+        showWallet(tensPlace, onesPlace);
         shopItemsDraw();
         game.batch.end();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
@@ -218,9 +226,7 @@ class ShopScreen implements Screen {
         basic.dispose();
     }
 
-    private void showWallet(int points) {
-        int tensPlace = points / 10;
-        int onesPlace = points - (tensPlace * 10);
+    private void showWallet(int tensPlace, int onesPlace) {
         TextureRegion tens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
         TextureRegion ones = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
         game.batch.draw(tens, 524, 898, 48, 84);
@@ -252,4 +258,19 @@ class ShopScreen implements Screen {
             }
             }
         }
+    private void cashDecrease(final int cashBefore, final int cashAfter) {
+        Timer.schedule(new Timer.Task(){
+            int a = cashBefore-1;
+                @Override
+                    public void run() {
+                    tensPlace = a / 10;
+                    onesPlace = a - (tensPlace * 10);
+                    a--;
+                    }
+            }
+                , 0f
+                , 0.2f
+                , cashBefore-cashAfter-1
+        );
+    }
 }

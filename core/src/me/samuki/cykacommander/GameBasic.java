@@ -14,23 +14,17 @@ class GameBasic {
     private static final int SPRITE_COLS = 1;
     private static final int SPRITE_ROWS = 3;
     //SHIP ANIMATION
-    Animation shipAnimation;
-    TextureRegion[] shipFrames;
-    public TextureRegion shipCurrentFrame;
+    private Animation shipAnimation;
+    TextureRegion shipCurrentFrame;
     //BULLET SPRITE
-    Texture bulletSprite;
+    private Texture bulletSprite;
     //PIPE SPRITE
-    public Animation pipeAnimation;
-    TextureRegion[] pipeFrames;
-    public TextureRegion pipeCurrentFrame;
+    private Animation pipeAnimation;
     //NUMBERS
     private static final int NUMBERS_COLS = 5;
     private static final int NUMBERS_ROWS = 2;
-    public static Animation numbersAnimation;
-    TextureRegion[] numbersFrames;
-    public static TextureRegion numbersCurrentFrame;
-    public Texture hudPoints;
-    public static int points;
+    static Animation numbersAnimation;
+    private Texture hudPoints;
 
     GameBasic() {
         //SHIP ANIMATION
@@ -53,7 +47,6 @@ class GameBasic {
         while(frontWidth > (lastWidth-200) && frontWidth < (lastWidth+200)) {
             frontWidth = MathUtils.random(640-128-50);
         }
-        System.out.println(frontWidth+" "+lastWidth);
         Rectangle frontPipe = new Rectangle(0,y,frontWidth,50);
         Rectangle backPipe = new Rectangle(frontWidth+128+50,y,462-frontWidth,50);
         frontPipes.add(frontPipe);
@@ -79,6 +72,7 @@ class GameBasic {
     //DRAWS
     void pipeDraw(Array<Rectangle> frontPipes, Array<Rectangle> backPipes, CykaGame game) {
         //PIPES DRAWING
+        TextureRegion pipeCurrentFrame;
         for (Rectangle frontPipe: frontPipes) {
             pipeCurrentFrame = pipeAnimation.getKeyFrame(2, true);
             game.batch.draw(pipeCurrentFrame, frontPipe.width-64, frontPipe.y-7);
@@ -117,17 +111,13 @@ class GameBasic {
         shipCurrentFrame = shipAnimation.getKeyFrame(a, true);
     }
     void numbersDraw(int points, CykaGame game) {
-        int tensPlace = points/10;
-        int onesPlace = points-(tensPlace*10);
-        numbersCurrentFrame = numbersAnimation.getKeyFrame(tensPlace, true);
+        int tensPlace = points / 10;
+        int onesPlace = points - (tensPlace * 10);
+        TextureRegion numbersCurrentFrame = numbersAnimation.getKeyFrame(tensPlace, true);
         game.batch.draw(numbersCurrentFrame, 592, 958, 24, 42);
         numbersCurrentFrame = numbersAnimation.getKeyFrame(onesPlace, true);
         game.batch.draw(numbersCurrentFrame, 616, 958, 24, 42);
         game.batch.draw(hudPoints, 587, 953);
-    }
-    //DEATH SCREEN
-    void getPoints(int points) {
-        GameBasic.points = points;
     }
     void dispose() {
         hudPoints.dispose();

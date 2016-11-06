@@ -17,11 +17,11 @@ class DeathScreen implements Screen {
     private CykaGame game;
     private Stage stage;
     //NUMBERS
-    private int points;
     private TextureRegion tens;
     private TextureRegion ones;
-    //PREFERENCES
-    private int bestScore;
+    //BEST SCORE
+    private TextureRegion bestTens;
+    private TextureRegion bestOnes;
 
     DeathScreen(CykaGame game) {
         this.game = game;
@@ -49,15 +49,19 @@ class DeathScreen implements Screen {
         final ImageButton menuButton = new ImageButton(menuSkin.getDrawable("menu"));
         menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,350);
         stage.addActor(menuButton);
-        //PREFERENCES
-        this.points = GameScreen.points;
-        bestScore = CykaGame.prefs.getInteger("best-score", 0);
+        //PREFERENCES / SCORE
+        int points = GameScreen.points;
+        setGameScore(points);
+
+        int bestScore = CykaGame.prefs.getInteger("best-score", 0);
 
         if(points > bestScore) {
             CykaGame.prefs.putInteger("best-score", points);
             bestScore = points;
             CykaGame.prefs.flush();
         }
+
+        setBestScore(bestScore);
         //BUTTONS INPUT
         playAgainButton.addListener(new ChangeListener() {
             @Override
@@ -79,12 +83,10 @@ class DeathScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        numbersDeathScreen(points);
         game.batch.draw(tens, 200, 714);
         game.batch.draw(ones, 320, 714);
-        numbersDeathScreen(bestScore);
-        game.batch.draw(tens, 200, 600, 24, 42);
-        game.batch.draw(ones, 320, 600, 24, 42);
+        game.batch.draw(bestTens, 200, 600, 24, 42);
+        game.batch.draw(bestOnes, 320, 600, 24, 42);
         game.batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
@@ -116,15 +118,16 @@ class DeathScreen implements Screen {
         stage.dispose();
     }
 
-    private void numbersDeathScreen(int points) {
-        /*new Timer().scheduleTask(new Timer.Task(){
-            @Override
-            public void run() {
-            }
-        }, 10, 0.1f);*/
+    private void setGameScore(int points) {
         int tensPlace = points / 10;
         int onesPlace = points - (tensPlace * 10);
         tens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
         ones = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
+    }
+    private void setBestScore(int points) {
+        int tensPlace = points / 10;
+        int onesPlace = points - (tensPlace * 10);
+        bestTens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
+        bestOnes = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
     }
 }

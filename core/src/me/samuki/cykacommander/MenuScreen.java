@@ -2,7 +2,6 @@ package me.samuki.cykacommander;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -13,25 +12,25 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
-public class MenuScreen implements Screen {
-    CykaGame game;
-    Stage stage;
-    FitViewport viewport;
+class MenuScreen implements Screen {
+    private CykaGame game;
+    private Stage stage;
+    private FitViewport viewport;
     //LOGO
-    Texture logo;
+    private Texture logo;
     //BUTTONS SKINS
-    Skin playSkin;
-    Skin shopSkin;
-    Skin settingsSkin;
+    private Skin playSkin;
+    private Skin shopSkin;
+    private Skin settingsSkin;
 
-    public MenuScreen(CykaGame game){
+    MenuScreen(CykaGame game){
         this.game = game;
     }
 
     @Override
     public void show() {
         //VIEWPORT
-        viewport = new FitViewport(game.SCREEN_WIDTH, game.SCREEN_HEIGHT, game.camera);
+        viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
         //STAGE
         stage = new Stage(viewport,game.batch);
@@ -118,6 +117,8 @@ public class MenuScreen implements Screen {
     public void dispose() {
         stage.dispose();
         playSkin.dispose();
+        shopSkin.dispose();
+        settingsSkin.dispose();
         settingsSkin.dispose();
     }
 }

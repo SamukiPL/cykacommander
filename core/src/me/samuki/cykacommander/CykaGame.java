@@ -4,13 +4,13 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class CykaGame extends Game {
-	public static final int SCREEN_WIDTH = 640;
-	public static final int SCREEN_HEIGHT = 1024;
+class CykaGame extends Game {
+	static final int SCREEN_WIDTH = 640;
+	static final int SCREEN_HEIGHT = 1024;
 
-	public SpriteBatch batch;
-	public OrthographicCamera camera;
-	public static Preferences prefs;
+	SpriteBatch batch;
+	OrthographicCamera camera;
+	static Preferences prefs;
 	
 	@Override
 	public void create () {
