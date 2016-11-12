@@ -33,8 +33,7 @@ class GameScreen implements Screen {
     private boolean canIRight = false;
     private Texture[] controlsTexture;
     //HITBOX COMPONENTS
-    private Rectangle bucket, engines, body;
-    private Circle eggLeft, eggRight;
+    private Rectangle bucket;
     //BULLET
     private Rectangle bulletRect;
     private boolean shotFired;
@@ -174,7 +173,7 @@ class GameScreen implements Screen {
         game.batch.begin();
         if(CykaGame.prefs.getBoolean("controls_on", true))
             controlsDraw();
-        game.batch.draw(basicThings.shipCurrentFrame,bucket.x,bucket.y);
+        game.batch.draw(basicThings.shipCurrentFrame,bucket.x,bucket.y, 128, 128);
         if(!pointHit)
             game.batch.draw(point, pointRect.x, pointRect.y, 50, 50);
         basicThings.pipeDraw(frontPipes, backPipes, game);
@@ -209,10 +208,10 @@ class GameScreen implements Screen {
 
     private void gameLogic() {
         //HITBOX SETTINGS
-        eggLeft = new Circle(bucket.x+32, bucket.y+26, 26);
-        eggRight = new Circle(bucket.x+95, bucket.y+26, 26);
-        engines = new Rectangle(bucket.x+16, bucket.y+52, 95, 11);
-        body = new Rectangle(bucket.x+48, bucket.y+64, 31, 56);
+        Circle eggLeft = new Circle(bucket.x + 32, bucket.y + 26, 26);
+        Circle eggRight = new Circle(bucket.x + 95, bucket.y + 26, 26);
+        Rectangle engines = new Rectangle(bucket.x + 16, bucket.y + 52, 95, 11);
+        Rectangle body = new Rectangle(bucket.x + 48, bucket.y + 64, 31, 56);
         //SHIP MOVEMENT
         if(bucket.x >= 0 && bucket.x <= 512)
             shipAcceleration += 120 * (Gdx.graphics.getDeltaTime() / 60);
@@ -261,6 +260,7 @@ class GameScreen implements Screen {
                     int cash = CykaGame.prefs.getInteger("cash", 0)+howManyCash;
                     CykaGame.prefs.putInteger("cash", cash);
                     CykaGame.prefs.flush();
+                    System.out.println(CykaGame.prefs.getInteger("cash", 0));
                 }
                 if(Intersector.overlaps(bulletRect, frontPipe) || Intersector.overlaps(bulletRect, backPipe) || bulletRect.y >= 1074) {
                     shotFired = false;

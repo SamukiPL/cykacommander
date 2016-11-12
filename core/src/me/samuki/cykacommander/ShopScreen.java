@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
@@ -27,20 +29,22 @@ class ShopScreen implements Screen {
     private Texture background;
     //CASH
     private int cash;
-    private int tensPlace, onesPlace;
+    private int thousandthsPlace, hundredthsPlace, tensPlace, onesPlace;
+    private Timer changeNumbers;
+    private Animation numbersFrames;
+    private Texture currency;
 
     private ImageButton.ImageButtonStyle useButton;
-    //SHOP PRICES
-    private static final int PRICE_CHANGE = 1;
     //SHOPITEMS
     private static final int AMOUNT = 6; //Ships for sale
     private int shopPage;
     private boolean setButtons;
 
     private boolean[] isBought;
+    private TextureRegion[] priceText;
     private Texture[] shopItems;
     private ImageButton[] shopButtons;
-    private int[] price;
+    private int[] prices = {0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 500, 750, 1000, 1250, 1500};
 
     ShopScreen(CykaGame game) {
         this.game = game;
@@ -86,22 +90,30 @@ class ShopScreen implements Screen {
 
         //CASH
         cash = CykaGame.prefs.getInteger("cash", 0);
-        tensPlace = cash / 10;
-        onesPlace = cash - (tensPlace * 10);
+        thousandthsPlace = cash / 1000;
+        hundredthsPlace = (cash - (thousandthsPlace * 1000)) / 100;
+        tensPlace = (cash - ((thousandthsPlace * 1000) + (hundredthsPlace * 100))) / 10;
+        onesPlace = cash - ((thousandthsPlace * 1000) + (hundredthsPlace * 100) + (tensPlace * 10));
+        changeNumbers = new Timer();
+        numbersFrames = basic.spriteCutting("prices/shop_numbers.png", 5, 2);
+        currency = new Texture("prices/currency.png");
         //SHOP ITEMS
         CykaGame.prefs.putBoolean("isBought_0", true); //FIRST SHIP
         CykaGame.prefs.flush();
         isBought = new boolean[AMOUNT];
+        priceText = new TextureRegion[AMOUNT];
         shopItems = new Texture[AMOUNT];
         shopButtons = new ImageButton[AMOUNT];
-        price = new int[AMOUNT];
+        //PRICES ANIMATION
+        Animation pricesFrames = basic.spriteCutting("prices/prices.png", 4, 4);
+        //TIMER FOR NUMBERS
 
         shopPage = 0;
 
         Skin buyUseSkin = new Skin();
         //BUY BUTTON STYLE
-        buyUseSkin.add("buy_up", new Texture("buy_button.png"));
-        buyUseSkin.add("buy_down", new Texture("buy_button.png"));
+        buyUseSkin.add("buy_up", new Texture("buy_button_0.png"));
+        buyUseSkin.add("buy_down", new Texture("buy_button_1.png"));
         ImageButton.ImageButtonStyle buyButton = new ImageButton.ImageButtonStyle();
         buyButton.up = buyUseSkin.getDrawable("buy_up");
         buyButton.down = buyUseSkin.getDrawable("buy_down");
@@ -118,10 +130,12 @@ class ShopScreen implements Screen {
 
             isBought[index] = CykaGame.prefs.getBoolean("isBought_"+index, false);
             if(!isBought[index]) {
-                shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
+                priceText[index] = pricesFrames.getKeyFrame(index);
+                shopItems[index] = new Texture("shop_items/shop_item_not_bought.png");
                 shopButtons[index] = new ImageButton(buyButton);
             }
             else {
+                priceText[index] = pricesFrames.getKeyFrame(index);
                 shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
                 shopButtons[index] = new ImageButton(useButton);
             }
@@ -129,25 +143,27 @@ class ShopScreen implements Screen {
             shopButtons[index].setTouchable(Touchable.disabled);
             stage.addActor(shopButtons[index]);
 
-            price[index] = PRICE_CHANGE+(PRICE_CHANGE*index);
-
             shopButtons[index].addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if(!isBought[index]) {
                         //IF NOT BOUGHT
-                        if(cash >= price[index]) {
+                        if(cash >= prices[index]) {
+                            //CASH CHANGE
                             int tmpCash = cash;
-                            cash-=price[index];
-                            //SHOWING DECREASED CASH
+                            cash-= prices[index];
                             cashDecrease(tmpCash, cash);
                             CykaGame.prefs.putInteger("cash", cash);
+                            //HOLDING STATUS
                             CykaGame.prefs.putBoolean("isBought_"+index, true);
+                            shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
                             isBought[index] = true;
                             shopButtons[index].setStyle(useButton);
+                            //CHECK CHANGE
                             shopButtons[CykaGame.prefs.getInteger("whichShip", 0)].setChecked(false);
                             CykaGame.prefs.putInteger("whichShip", index);
                             shopButtons[index].setChecked(true);
+                            //REMEMBER THAT!
                             CykaGame.prefs.flush();
                         }
                     }
@@ -169,9 +185,11 @@ class ShopScreen implements Screen {
 
         //BACK
         Skin backSkin = new Skin();
-        backSkin.add("back", new Texture("back_button.png"));
+        backSkin.add("back_up", new Texture("back_button_0.png"));
+        backSkin.add("back_down", new Texture("back_button_1.png"));
 
-        final ImageButton backButton = new ImageButton(backSkin.getDrawable("back"), backSkin.getDrawable("back"));
+        final Button backButton = new Button(backSkin.getDrawable("back_up"), backSkin.getDrawable("back_down"));
+        backButton.setBounds(0, 0, 270, 126);
         backButton.setPosition(10, viewport.getWorldHeight()-backButton.getHeight()-10);
         stage.addActor(backButton);
 
@@ -190,7 +208,7 @@ class ShopScreen implements Screen {
 
         game.batch.begin();
         game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        showWallet(tensPlace, onesPlace);
+        showWallet(thousandthsPlace, hundredthsPlace, tensPlace, onesPlace);
         shopItemsDraw();
         game.batch.end();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
@@ -226,14 +244,20 @@ class ShopScreen implements Screen {
         basic.dispose();
     }
 
-    private void showWallet(int tensPlace, int onesPlace) {
-        TextureRegion tens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
-        TextureRegion ones = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
-        game.batch.draw(tens, 524, 898, 48, 84);
-        game.batch.draw(ones, 572, 898, 48, 84);
+    private void showWallet(int...places) {
+        TextureRegion thousands =   numbersFrames.getKeyFrame(places[0], true);
+        TextureRegion hundreds  =   numbersFrames.getKeyFrame(places[1], true);
+        TextureRegion tens      =   numbersFrames.getKeyFrame(places[2], true);
+        TextureRegion ones      =   numbersFrames.getKeyFrame(places[3], true);
+        game.batch.draw(thousands, 380, 898, 48, 84);
+        game.batch.draw(hundreds, 428, 898, 48, 84);
+        game.batch.draw(tens, 476, 898, 48, 84);
+        game.batch.draw(ones, 524, 898, 48, 84);
+        game.batch.draw(currency, 572, 898, 48, 84);
     }
 
     private void shopItemsDraw() {
+        int shipSize;
 
         if(shopPage > AMOUNT/2-1){
             shopPage = 0;
@@ -248,7 +272,13 @@ class ShopScreen implements Screen {
                 row = -2;
                 item = i+row;
             }
-            game.batch.draw(shopItems[item], 160-(192/2)+(160*(i-(i%2))), 590-(415*(i%2)), 192, 192);
+            if(isBought[item])
+                shipSize = 192;
+            else {
+                shipSize = 128;
+                game.batch.draw(priceText[item], 160 - (135 / 2) + (160 * (i - (i % 2))), 728 - (415 * (i % 2)), 135, 72);
+            }
+            game.batch.draw(shopItems[item], 160-(shipSize/2)+(160*(i-(i%2))), 590-(415*(i%2)), shipSize, shipSize);
             shopButtons[item].setPosition(160 - (shopButtons[item].getWidth()/2) + (160*(i-(i%2))), 465-(415*(i%2)));
             if(setButtons) {
                 shopButtons[item].setVisible(true);
@@ -259,17 +289,20 @@ class ShopScreen implements Screen {
             }
         }
     private void cashDecrease(final int cashBefore, final int cashAfter) {
-        Timer.schedule(new Timer.Task(){
+        changeNumbers.clear();
+        changeNumbers.scheduleTask(new Timer.Task(){
             int a = cashBefore-1;
                 @Override
                     public void run() {
-                    tensPlace = a / 10;
-                    onesPlace = a - (tensPlace * 10);
+                    thousandthsPlace = a / 1000;
+                    hundredthsPlace = (a - (thousandthsPlace * 1000)) / 100;
+                    tensPlace = (a - ((thousandthsPlace * 1000) + (hundredthsPlace * 100))) / 10;
+                    onesPlace = a - ((thousandthsPlace * 1000) + (hundredthsPlace * 100) + (tensPlace * 10));
                     a--;
                     }
             }
                 , 0f
-                , 0.2f
+                , 0.003f
                 , cashBefore-cashAfter-1
         );
     }

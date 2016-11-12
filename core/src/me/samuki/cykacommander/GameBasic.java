@@ -94,7 +94,7 @@ class GameBasic {
             game.batch.draw(bulletSprite, x, y, 50, 50);
     }
     //SPRITES
-    private Animation spriteCutting(String textureName, int cols, int rows) {
+    Animation spriteCutting(String textureName, int cols, int rows) {
         Texture tmpTexture = new Texture(textureName);
         TextureRegion[][] tmp = TextureRegion.split(tmpTexture, tmpTexture.getWidth()/ cols, tmpTexture.getHeight()/rows);
         TextureRegion[] tmpFrames = new TextureRegion[cols*rows];

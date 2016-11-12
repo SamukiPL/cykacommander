@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -39,24 +40,30 @@ class MenuScreen implements Screen {
         logo = new Texture("cykalogo.png");
         //PLAY
         playSkin = new Skin();
-        playSkin.add("play", new Texture("play_button.png"));
+        playSkin.add("play_up", new Texture("play_button_0.png"));
+        playSkin.add("play_down", new Texture("play_button_1.png"));
 
-        final ImageButton playButton = new ImageButton(playSkin.getDrawable("play"), playSkin.getDrawable("play"));
-        playButton.setPosition(viewport.getWorldWidth()/2-playButton.getWidth()/2,500);
+        final Button playButton = new Button(playSkin.getDrawable("play_up"), playSkin.getDrawable("play_down"));
+        playButton.setBounds(0, 0, 300, 140);
+        playButton.setPosition(viewport.getWorldWidth()/2-playButton.getWidth()/2,550);
         stage.addActor(playButton);
         //SHOP
         shopSkin = new Skin();
-        shopSkin.add("shop", new Texture("shop_button.png"));
+        shopSkin.add("shop_up", new Texture("shop_button_0.png"));
+        shopSkin.add("shop_down", new Texture("shop_button_1.png"));
 
-        final ImageButton shopButton = new ImageButton(shopSkin.getDrawable("shop"), shopSkin.getDrawable("shop"));
+        final Button shopButton = new Button(shopSkin.getDrawable("shop_up"), shopSkin.getDrawable("shop_down"));
+        shopButton.setBounds(0, 0, 300, 140);
         shopButton.setPosition(viewport.getWorldWidth()/2-shopButton.getWidth()/2, 400);
         stage.addActor(shopButton);
         //SETTINGS
         settingsSkin = new Skin();
-        settingsSkin.add("settings", new Texture("settings_button.png"));
+        settingsSkin.add("settings_up", new Texture("settings_button_0.png"));
+        settingsSkin.add("settings_down", new Texture("settings_button_1.png"));
 
-        final ImageButton settingsButton = new ImageButton(settingsSkin.getDrawable("settings"), settingsSkin.getDrawable("settings"));
-        settingsButton.setPosition(viewport.getWorldWidth()/2-settingsButton.getWidth()/2, 300);
+        final Button settingsButton = new Button(settingsSkin.getDrawable("settings_up"), settingsSkin.getDrawable("settings_down"));
+        settingsButton.setBounds(0, 0, 480, 140);
+        settingsButton.setPosition(viewport.getWorldWidth()/2-settingsButton.getWidth()/2, 250);
         stage.addActor(settingsButton);
 
         //BUTTONS INPUT
@@ -82,11 +89,11 @@ class MenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.4f, 0.1f, 0.6f, 1);
+        Gdx.gl.glClearColor(0.845f, 0.845f, 0.845f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.batch.draw(logo, (viewport.getWorldWidth()/2)-(logo.getWidth()/2), 800);
+        game.batch.draw(logo, (viewport.getWorldWidth()/2)-(540/2), 750, 558, 198);
         game.batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));

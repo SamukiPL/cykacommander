@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -53,9 +54,11 @@ class SettingsScreen implements Screen {
         stage.addActor(buttonControls);
         //BACK
         Skin backSkin = new Skin();
-        backSkin.add("back", new Texture("back_button.png"));
+        backSkin.add("back_up", new Texture("back_button_0.png"));
+        backSkin.add("back_down", new Texture("back_button_1.png"));
 
-        final ImageButton backButton = new ImageButton(backSkin.getDrawable("back"), backSkin.getDrawable("back"));
+        final Button backButton = new Button(backSkin.getDrawable("back_up"), backSkin.getDrawable("back_down"));
+        backButton.setBounds(0, 0, 270, 126);
         backButton.setPosition(10, viewport.getWorldHeight()-backButton.getHeight()-10);
         stage.addActor(backButton);
         //OPTIONS TEXT

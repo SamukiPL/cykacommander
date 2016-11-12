@@ -5,12 +5,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 class DeathScreen implements Screen {
@@ -37,17 +39,21 @@ class DeathScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         //PLAY AGAIN
         Skin playAgainSkin = new Skin();
-        playAgainSkin.add("play_again", new Texture("play_button.png"));
+        playAgainSkin.add("play_again_up", new Texture("play_button_0.png"));
+        playAgainSkin.add("play_again_down", new Texture("play_button_1.png"));
 
-        final ImageButton playAgainButton = new ImageButton(playAgainSkin.getDrawable("play_again"));
+        final Button playAgainButton = new Button(playAgainSkin.getDrawable("play_again_up"), playAgainSkin.getDrawable("play_again_down"));
+        playAgainButton.setBounds(0, 0, 300, 140);
         playAgainButton.setPosition(viewport.getWorldWidth()/2-playAgainButton.getWidth()/2,450);
         stage.addActor(playAgainButton);
         //MENU
         Skin menuSkin = new Skin();
-        menuSkin.add("menu", new Texture("menu_button.png"));
+        menuSkin.add("menu_up", new Texture("menu_button_0.png"));
+        menuSkin.add("menu_down", new Texture("menu_button_1.png"));
 
-        final ImageButton menuButton = new ImageButton(menuSkin.getDrawable("menu"));
-        menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,350);
+        final Button menuButton = new Button(menuSkin.getDrawable("menu_up"), menuSkin.getDrawable("menu_down"));
+        menuButton.setBounds(0, 0, 300, 140);
+        menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,300);
         stage.addActor(menuButton);
         //PREFERENCES / SCORE
         int points = GameScreen.points;
@@ -118,16 +124,35 @@ class DeathScreen implements Screen {
         stage.dispose();
     }
 
-    private void setGameScore(int points) {
-        int tensPlace = points / 10;
-        int onesPlace = points - (tensPlace * 10);
-        tens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
-        ones = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
-    }
     private void setBestScore(int points) {
         int tensPlace = points / 10;
         int onesPlace = points - (tensPlace * 10);
         bestTens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
         bestOnes = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
+    }
+    private void setGameScore(final int points) {
+        Timer.schedule(new Timer.Task(){
+                           int count = 0;
+                           @Override
+                           public void run() {
+                               count++;
+                               int a;
+                               int b;
+                               if(count < 25) {
+                                   a = MathUtils.random(10);
+                                   b = MathUtils.random(10);
+                               }
+                               else {
+                                   a = points / 10;
+                                   b = points - (a * 10);
+                               }
+                               tens = GameBasic.numbersAnimation.getKeyFrame(a, true);
+                               ones = GameBasic.numbersAnimation.getKeyFrame(b, true);
+                           }
+                       }
+                , 0f
+                , 0.05f
+                , 25
+        );
     }
 }
