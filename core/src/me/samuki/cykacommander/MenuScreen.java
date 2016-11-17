@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Scaling;
@@ -17,6 +16,9 @@ class MenuScreen implements Screen {
     private CykaGame game;
     private Stage stage;
     private FitViewport viewport;
+    //BACKGROUND
+    private Texture background, vodka;
+    private int vodkaX;
     //LOGO
     private Texture logo;
     //BUTTONS SKINS
@@ -36,6 +38,11 @@ class MenuScreen implements Screen {
         //STAGE
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
+        //BACKGROUND
+        background = new Texture("menu_background.png");
+        vodka = new Texture("vodka.png");
+        vodkaX = vodka.getWidth()/2;
+
         //LOGO
         logo = new Texture("cykalogo.png");
         //PLAY
@@ -93,7 +100,9 @@ class MenuScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.batch.draw(logo, (viewport.getWorldWidth()/2)-(540/2), 750, 558, 198);
+        game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        game.batch.draw(vodka, viewport.getWorldWidth()/2-vodkaX, 32);
+        game.batch.draw(logo, (viewport.getWorldWidth()/2)-(558/2), 750, 558, 198);
         game.batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));

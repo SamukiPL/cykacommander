@@ -70,7 +70,7 @@ class GameScreen implements Screen {
         //CONTROLS
         shotControl = new Actor();
         shotControl.setPosition(0,250);
-        shotControl.setSize(640,1024);
+        shotControl.setSize(640,774);
         stage.addActor(shotControl);
 
         leftControl = new Actor();
@@ -89,7 +89,7 @@ class GameScreen implements Screen {
             controlsTexture[i] = tmpControl;
         }
         //GAME SETTINGS
-        gameSpeed = 12000;
+        gameSpeed = 25000;//12000;
         shipSpeed = 0;
         points = 0;
 
@@ -245,7 +245,7 @@ class GameScreen implements Screen {
                 backIter.remove();
                 points++;
                 //CASH
-                howManyCash = 1+(points/10);
+                howManyCash = 1+(points/5);
             }
             if (basicThings.hitbox(eggLeft, eggRight, frontPipe, backPipe, engines, body)) {
                 sounds.deathSound.play(volume);
@@ -275,7 +275,8 @@ class GameScreen implements Screen {
             pointRect = basicThings.spawnPoint(1122);
             pointHit = false;
         }
-        gameSpeed += 60000*Gdx.graphics.getDeltaTime()/60;
+        if(points < 30)
+            gameSpeed += 60000*Gdx.graphics.getDeltaTime()/60;
     }
 
     private void controlsDraw() {

@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Scaling;
@@ -17,11 +16,15 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 class SettingsScreen implements Screen {
     private CykaGame game;
     private Stage stage;
+    private FitViewport viewport;
+    //BACKGROUND
+    private Texture background;
     //SETTINGS VALUES
     private boolean soundOn;
     private boolean controlsOn;
     //OPTIONS TEXT
     private Texture soundText;
+    private Texture controlsText;
 
     SettingsScreen(CykaGame game) {
         this.game = game;
@@ -30,11 +33,13 @@ class SettingsScreen implements Screen {
     @Override
     public void show() {
         //VIEWPORT
-        FitViewport viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
+        viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
         //STAGE
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
+        //BACKGROUND
+        background = new Texture("settings_screen/background.png");
         //SETTINGS VALUES
         soundOn = CykaGame.prefs.getBoolean("sound", true);
         controlsOn = CykaGame.prefs.getBoolean("controls_on", true);
@@ -43,14 +48,16 @@ class SettingsScreen implements Screen {
         onOffSkin.add("on", new Texture("on_button.png"));
         onOffSkin.add("off", new Texture("off_button.png"));
 
-        final ImageButton buttonSound = new ImageButton(onOffSkin.getDrawable("off"), onOffSkin.getDrawable("off"), onOffSkin.getDrawable("on"));
+        final Button buttonSound = new Button(onOffSkin.getDrawable("off"), onOffSkin.getDrawable("off"), onOffSkin.getDrawable("on"));
+        buttonSound.setBounds(0, 0, 96, 96);
         buttonSound.setChecked(soundOn);
-        buttonSound.setPosition(450, 800);
+        buttonSound.setPosition(450, 700);
         stage.addActor(buttonSound);
 
-        final ImageButton buttonControls = new ImageButton(onOffSkin.getDrawable("off"), onOffSkin.getDrawable("off"), onOffSkin.getDrawable("on"));
+        final Button buttonControls = new Button(onOffSkin.getDrawable("off"), onOffSkin.getDrawable("off"), onOffSkin.getDrawable("on"));
+        buttonControls.setBounds(0, 0, 96, 96);
         buttonControls.setChecked(controlsOn);
-        buttonControls.setPosition(450, 650);
+        buttonControls.setPosition(450, 550);
         stage.addActor(buttonControls);
         //BACK
         Skin backSkin = new Skin();
@@ -62,7 +69,8 @@ class SettingsScreen implements Screen {
         backButton.setPosition(10, viewport.getWorldHeight()-backButton.getHeight()-10);
         stage.addActor(backButton);
         //OPTIONS TEXT
-        soundText = new Texture("sound_text.png");
+        soundText = new Texture("settings_screen/sound_text.png");
+        controlsText = new Texture("settings_screen/controls_text.png");
 
         buttonSound.addListener(new ChangeListener() {
             @Override
@@ -94,7 +102,9 @@ class SettingsScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.batch.draw(soundText, 100, 800);
+        game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        game.batch.draw(soundText, 100, 700, 310, 90);
+        game.batch.draw(controlsText, 50, 559, 384, 72);
         game.batch.end();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
         stage.draw();

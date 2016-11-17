@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -17,13 +18,21 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 class DeathScreen implements Screen {
     private CykaGame game;
+    private GameBasic basic;
     private Stage stage;
+    private FitViewport viewport;
+    //BACKGROUND
+    private Texture background;
+    private Animation numbersFrames;
     //NUMBERS
     private TextureRegion tens;
     private TextureRegion ones;
     //BEST SCORE
     private TextureRegion bestTens;
     private TextureRegion bestOnes;
+    private Texture bestScoreText;
+    //COINS
+    private Texture coin;
 
     DeathScreen(CykaGame game) {
         this.game = game;
@@ -31,12 +40,15 @@ class DeathScreen implements Screen {
 
     @Override
     public void show() {
+        basic = new GameBasic();
         //VIEWPORT
-        FitViewport viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
+        viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
         //STAGE
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
+        //BACKGROUND
+        background = new Texture("death_screen/background.png");
         //PLAY AGAIN
         Skin playAgainSkin = new Skin();
         playAgainSkin.add("play_again_up", new Texture("play_button_0.png"));
@@ -56,18 +68,39 @@ class DeathScreen implements Screen {
         menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,300);
         stage.addActor(menuButton);
         //PREFERENCES / SCORE
+        numbersFrames = basic.spriteCutting("death_screen/numbers_death.png", 5, 2);
+        //CONTROLS OFF
+        CykaGame.prefs.putBoolean("controls_on", false);
+        CykaGame.prefs.flush();
+
         int points = GameScreen.points;
         setGameScore(points);
 
         int bestScore = CykaGame.prefs.getInteger("best-score", 0);
+        int isBest = 0;
 
         if(points > bestScore) {
             CykaGame.prefs.putInteger("best-score", points);
             bestScore = points;
             CykaGame.prefs.flush();
+            isBest = 1;
         }
-
+        bestScoreText = new Texture("death_screen/best_score_"+isBest+".png");
         setBestScore(bestScore);
+        //COINS
+        int coinNumber = 0;
+        if(points < 10)
+            coinNumber = 0;
+        else if (points < 20)
+            coinNumber = 1;
+        else if (points < 30)
+            coinNumber = 2;
+        else if (points < 40)
+            coinNumber = 3;
+        else if (points < 50)
+            coinNumber = 4;
+        coin = new Texture("death_screen/coin_"+coinNumber+".png");
+
         //BUTTONS INPUT
         playAgainButton.addListener(new ChangeListener() {
             @Override
@@ -89,10 +122,13 @@ class DeathScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.batch.draw(tens, 200, 714);
-        game.batch.draw(ones, 320, 714);
-        game.batch.draw(bestTens, 200, 600, 24, 42);
-        game.batch.draw(bestOnes, 320, 600, 24, 42);
+        game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        game.batch.draw(tens, 150, 714, 120, 240);
+        game.batch.draw(ones, 270, 714, 120, 240);
+        game.batch.draw(coin, 400, 770, 128, 128);
+        game.batch.draw(bestScoreText, 180, 615, 180, 85);
+        game.batch.draw(bestTens, 380, 615, 48, 84);
+        game.batch.draw(bestOnes, 428, 615, 48, 84);
         game.batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
@@ -127,8 +163,8 @@ class DeathScreen implements Screen {
     private void setBestScore(int points) {
         int tensPlace = points / 10;
         int onesPlace = points - (tensPlace * 10);
-        bestTens = GameBasic.numbersAnimation.getKeyFrame(tensPlace, true);
-        bestOnes = GameBasic.numbersAnimation.getKeyFrame(onesPlace, true);
+        bestTens = numbersFrames.getKeyFrame(tensPlace, true);
+        bestOnes = numbersFrames.getKeyFrame(onesPlace, true);
     }
     private void setGameScore(final int points) {
         Timer.schedule(new Timer.Task(){
@@ -146,12 +182,12 @@ class DeathScreen implements Screen {
                                    a = points / 10;
                                    b = points - (a * 10);
                                }
-                               tens = GameBasic.numbersAnimation.getKeyFrame(a, true);
-                               ones = GameBasic.numbersAnimation.getKeyFrame(b, true);
+                               tens = numbersFrames.getKeyFrame(a, true);
+                               ones = numbersFrames.getKeyFrame(b, true);
                            }
                        }
                 , 0f
-                , 0.05f
+                , 0.02f
                 , 25
         );
     }
