@@ -26,7 +26,7 @@ class GameBasic {
     static Animation numbersAnimation;
     private Texture hudPoints;
 
-    GameBasic() {
+    void loadSprites() {
         //SHIP ANIMATION
         int whichShip = CykaGame.prefs.getInteger("whichShip", 0);
         shipAnimation = spriteCutting("ship_sprites/ship_sprite_"+whichShip+".png", SPRITE_COLS, SPRITE_ROWS);
@@ -94,7 +94,7 @@ class GameBasic {
             game.batch.draw(bulletSprite, x, y, 50, 50);
     }
     //SPRITES
-    Animation spriteCutting(String textureName, int cols, int rows) {
+    static Animation spriteCutting(String textureName, int cols, int rows) {
         Texture tmpTexture = new Texture(textureName);
         TextureRegion[][] tmp = TextureRegion.split(tmpTexture, tmpTexture.getWidth()/ cols, tmpTexture.getHeight()/rows);
         TextureRegion[] tmpFrames = new TextureRegion[cols*rows];

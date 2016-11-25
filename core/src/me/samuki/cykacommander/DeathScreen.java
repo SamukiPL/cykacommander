@@ -18,7 +18,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 class DeathScreen implements Screen {
     private CykaGame game;
-    private GameBasic basic;
     private Stage stage;
     private FitViewport viewport;
     //BACKGROUND
@@ -40,7 +39,6 @@ class DeathScreen implements Screen {
 
     @Override
     public void show() {
-        basic = new GameBasic();
         //VIEWPORT
         viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
@@ -68,12 +66,17 @@ class DeathScreen implements Screen {
         menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,300);
         stage.addActor(menuButton);
         //PREFERENCES / SCORE
-        numbersFrames = basic.spriteCutting("death_screen/numbers_death.png", 5, 2);
+        numbersFrames = GameBasic.spriteCutting("death_screen/numbers_death.png", 5, 2);
         //CONTROLS OFF
-        CykaGame.prefs.putBoolean("controls_on", false);
+        CykaGame.prefs.putInteger("plays_counter", CykaGame.prefs.getInteger("plays_counter", 0)+1);
         CykaGame.prefs.flush();
+        System.out.println(CykaGame.prefs.getInteger("plays_counter",0));
 
         int points = GameScreen.points;
+        int a = points / 10;
+        int b = points - (a * 10);
+        tens = numbersFrames.getKeyFrame(a, true);
+        ones = numbersFrames.getKeyFrame(b, true);
         setGameScore(points);
 
         int bestScore = CykaGame.prefs.getInteger("best-score", 0);
@@ -118,7 +121,7 @@ class DeathScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.4f, 0.4f, 0.5f, 1);
+        Gdx.gl.glClearColor(0.845f, 0.845f, 0.845f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();

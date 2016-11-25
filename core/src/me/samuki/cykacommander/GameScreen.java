@@ -22,16 +22,21 @@ import java.util.Iterator;
 
 class GameScreen implements Screen {
     private CykaGame game;
-    private GameBasic basicThings;
+    private GameBasic basic;
     private SoundsBase sounds;
     //INPUT PROCESSOR
     private Stage stage;
     //CONTROLS
+    private int setControls;
     private Actor leftControl, rightControl, shotControl;
     private float gameSpeed, shipSpeed, shipAcceleration;
     private boolean canILeft = false;
     private boolean canIRight = false;
+    //CONTROLS TEXTURES
     private Texture[] controlsTexture;
+    private Texture joystickTexture;
+    private Texture shotButtonTexture;
+    private boolean controlsOn;
     //HITBOX COMPONENTS
     private Rectangle bucket;
     //BULLET
@@ -51,7 +56,6 @@ class GameScreen implements Screen {
     //SOUND
     private float volume;
 
-
     GameScreen(CykaGame game) {
         this.game = game;
     }
@@ -59,7 +63,8 @@ class GameScreen implements Screen {
 
     @Override
     public void show() {
-        basicThings = new GameBasic();
+        basic = new GameBasic();
+        basic.loadSprites();
         sounds = new SoundsBase();
         //VIEWPORT
         FitViewport viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
@@ -67,27 +72,34 @@ class GameScreen implements Screen {
         //STAGE
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
-        //CONTROLS
+        //CONTROLS SET
+        setControls = CykaGame.prefs.getInteger("which_control");
         shotControl = new Actor();
-        shotControl.setPosition(0,250);
-        shotControl.setSize(640,774);
+        controls(setControls);
         stage.addActor(shotControl);
 
-        leftControl = new Actor();
-        leftControl.setPosition(0,0);
-        leftControl.setSize(320,250);
-        stage.addActor(leftControl);
-
-        rightControl = new Actor();
-        rightControl.setPosition(320,0);
-        rightControl.setSize(321,250);
-        stage.addActor(rightControl);
+        shotFired = false;
+        shotControl.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(!shotFired) {
+                    bulletRect = basic.spawnBullet(bucket.x);
+                    shotFired = true;
+                }
+            }
+        });
 
         controlsTexture = new Texture[3];
         for(int i = 0; i < 3; i++) {
             Texture tmpControl = new Texture("control_"+i+".png");
             controlsTexture[i] = tmpControl;
         }
+        joystickTexture = new Texture("joystick.png");
+        shotButtonTexture = new Texture("shot_button.png");
+
+        controlsOn = CykaGame.prefs.getBoolean("controls_on", true);
+        if(CykaGame.prefs.getInteger("plays_counter", 0) == 0)
+            controlsOn = true;
         //GAME SETTINGS
         gameSpeed = 25000;//12000;
         shipSpeed = 0;
@@ -96,66 +108,20 @@ class GameScreen implements Screen {
         //PIPES ARRAYS
         frontPipes = new Array<Rectangle>();
         backPipes = new Array<Rectangle>();
-        basicThings.spawnLine(1086, -220, frontPipes, backPipes);
+        basic.spawnLine(1086, -220, frontPipes, backPipes);
         makePipe = true;
         pipeY = 1729;
         //POINTS
-        pointRect = basicThings.spawnPoint(1629);
+        pointRect = basic.spawnPoint(1629);
         point = new Texture("on_button.png");
         pointHit = false;
         howManyCash = 1;
 
         bucket = new Rectangle(640/2-128/2,10,128,128);
 
-        basicThings.shipSpriteChange(1);
-        //CONTROLS SET
-        shotFired = false;
-        shotControl.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if(!shotFired) {
-                    bulletRect = basicThings.spawnBullet(bucket.x);
-                    shotFired = true;
-                }
-            }
-        });
-        rightControl.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                shipAcceleration = 0;
-                shipSpeed = gameSpeed;
-                basicThings.shipSpriteChange(0);
-                canIRight = true;
-                return true;
-            }
+        basic.shipSpriteChange(1);
 
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                if(!canILeft) {
-                    shipSpeed = 0;
-                    basicThings.shipSpriteChange(1);
-                }
-                canIRight = false;
-            }
-        });
-        leftControl.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                shipAcceleration = 0;
-                shipSpeed = -gameSpeed;
-                basicThings.shipSpriteChange(2);
-                canILeft = true;
-                return true;
-            }
-
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                if(!canIRight) {
-                    shipSpeed = 0;
-                    basicThings.shipSpriteChange(1);
-                }
-                canILeft = false;
-            }
-        });
         Gdx.input.setCatchBackKey(true);
-
-
 
         //SOUNDS
         if(CykaGame.prefs.getBoolean("sound", true))
@@ -169,19 +135,19 @@ class GameScreen implements Screen {
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        controlsRender(setControls);
         gameLogic();
         game.batch.begin();
-        if(CykaGame.prefs.getBoolean("controls_on", true))
-            controlsDraw();
-        game.batch.draw(basicThings.shipCurrentFrame,bucket.x,bucket.y, 128, 128);
+        if(controlsOn)
+            controlsDraw(setControls);
+        game.batch.draw(basic.shipCurrentFrame,bucket.x,bucket.y, 128, 128);
         if(!pointHit)
             game.batch.draw(point, pointRect.x, pointRect.y, 50, 50);
-        basicThings.pipeDraw(frontPipes, backPipes, game);
+        basic.pipeDraw(frontPipes, backPipes, game);
         if(shotFired)
-            basicThings.bulletDraw(game, bulletRect.x, bulletRect.y);
-        basicThings.numbersDraw(points, game);
+            basic.bulletDraw(game, bulletRect.x, bulletRect.y);
+        basic.numbersDraw(points, game);
         game.batch.end();
-
     }
 
     @Override
@@ -200,10 +166,11 @@ class GameScreen implements Screen {
     public void dispose() {
         stage.dispose();
         sounds.dispose();
-        basicThings.dispose();
+        basic.dispose();
         for (Texture aControlsTexture : controlsTexture) {
             aControlsTexture.dispose();
         }
+        joystickTexture.dispose();
     }
 
     private void gameLogic() {
@@ -218,11 +185,11 @@ class GameScreen implements Screen {
             bucket.x += (shipSpeed*((float)1+shipAcceleration)) * (Gdx.graphics.getDeltaTime() / 60);
         if(bucket.x < 0) {
             bucket.x = 0;
-            basicThings.shipSpriteChange(1);
+            basic.shipSpriteChange(1);
         }
         if(bucket.x > 512) {
             bucket.x = 512;
-            basicThings.shipSpriteChange(1);
+            basic.shipSpriteChange(1);
         }
 
         //PIPES WORK
@@ -232,8 +199,8 @@ class GameScreen implements Screen {
             Rectangle frontPipe = frontIter.next();
             Rectangle backPipe = backIter.next();
             if(makePipe) {
-                basicThings.spawnLine(pipeY, (int)frontPipe.width, frontPipes, backPipes);
-                pipeY = 1122;
+                basic.spawnLine(pipeY, (int)frontPipe.width, frontPipes, backPipes);
+                pipeY = 1222;
                 makePipe = false;
             }
             frontPipe.y -= gameSpeed*(Gdx.graphics.getDeltaTime()/60);
@@ -247,7 +214,7 @@ class GameScreen implements Screen {
                 //CASH
                 howManyCash = 1+(points/5);
             }
-            if (basicThings.hitbox(eggLeft, eggRight, frontPipe, backPipe, engines, body)) {
+            if (basic.hitbox(eggLeft, eggRight, frontPipe, backPipe, engines, body)) {
                 sounds.deathSound.play(volume);
                 game.setScreen(new DeathScreen(game));
             }
@@ -272,23 +239,176 @@ class GameScreen implements Screen {
         //POINTS
         pointRect.y -= gameSpeed*(Gdx.graphics.getDeltaTime()/60);
         if(pointRect.y <= -50) {
-            pointRect = basicThings.spawnPoint(1122);
+            pointRect = basic.spawnPoint(1222);
             pointHit = false;
         }
         if(points < 30)
             gameSpeed += 60000*Gdx.graphics.getDeltaTime()/60;
     }
 
-    private void controlsDraw() {
+    private void controlsDraw(int whichControls) {
         //CONTROLS COLOR...
-        Color color = game.batch.getColor();
-        float oldAlpha = color.a;
-        color.a = 0.2f;
-        game.batch.setColor(color);
-        game.batch.draw(controlsTexture[0], leftControl.getX(), leftControl.getY(), leftControl.getWidth(), leftControl.getHeight());
-        game.batch.draw(controlsTexture[1], rightControl.getX(), rightControl.getY(), rightControl.getWidth(), rightControl.getHeight());
-        game.batch.draw(controlsTexture[2], shotControl.getX(), shotControl.getY(), shotControl.getWidth(), shotControl.getHeight());
-        color.a = oldAlpha;
-        game.batch.setColor(color);
+        if(whichControls == 0) {
+            Color color = game.batch.getColor();
+            float oldAlpha = color.a;
+            color.a = 0.2f;
+            game.batch.setColor(color);
+            game.batch.draw(joystickTexture, 32, 5, 576, 288);
+            game.batch.draw(controlsTexture[2], shotControl.getX(), shotControl.getY(), shotControl.getWidth(), shotControl.getHeight());
+            color.a = oldAlpha;
+            game.batch.setColor(color);
+        }
+        if(whichControls == 1) {
+            Color color = game.batch.getColor();
+            float oldAlpha = color.a;
+            color.a = 0.2f;
+            game.batch.setColor(color);
+            game.batch.draw(joystickTexture, 10, 40, 480, 240);
+            game.batch.draw(shotButtonTexture, 521, 116, 87, 87);
+            color.a = oldAlpha;
+            game.batch.setColor(color);
+        }
+        if(whichControls == 2) {
+            Color color = game.batch.getColor();
+            float oldAlpha = color.a;
+            color.a = 0.2f;
+            game.batch.setColor(color);
+            game.batch.draw(joystickTexture, 140, 40, 480, 240);
+            game.batch.draw(shotButtonTexture, 30, 116, 87, 87);
+            color.a = oldAlpha;
+            game.batch.setColor(color);
+        }
+    }
+
+    private void controls(int whichControls) {
+        if(whichControls == 0) {
+            shotControl.setPosition(0,288);
+            shotControl.setSize(640,774);
+
+            leftControl = new Actor();
+            leftControl.setPosition(0,0);
+            leftControl.setSize(320,288);
+            stage.addActor(leftControl);
+
+            rightControl = new Actor();
+            rightControl.setPosition(320,0);
+            rightControl.setSize(321,288);
+            stage.addActor(rightControl);
+
+                rightControl.addListener(new InputListener() {
+                    public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                        shipAcceleration = 0;
+                        shipSpeed = gameSpeed;
+                        basic.shipSpriteChange(0);
+                        canIRight = true;
+                        return true;
+                    }
+
+                    public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                        if(!canILeft) {
+                            shipSpeed = 0;
+                            basic.shipSpriteChange(1);
+                        }
+                        canIRight = false;
+                    }
+                });
+                leftControl.addListener(new InputListener() {
+                    public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                        shipAcceleration = 0;
+                        shipSpeed = -gameSpeed;
+                        basic.shipSpriteChange(2);
+                        canILeft = true;
+                        return true;
+                    }
+
+                public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                    if(!canIRight) {
+                        shipSpeed = 0;
+                        basic.shipSpriteChange(1);
+                    }
+                    canILeft = false;
+                }
+                });
+        }
+        else if(whichControls == 1) {
+            shotControl.setPosition(474, 0);
+            shotControl.setSize(280, 280);
+        }
+        else if(whichControls == 2) {
+            shotControl.setPosition(0, 0);
+            shotControl.setSize(166, 280);
+        }
+    }
+    private void controlsRender(int whichControls) {
+        //CONTROLS 1
+        if(whichControls == 1) {
+            int lastPointer = 0;
+            for (int i = 0; i < 6; i++) {
+                if (Gdx.input.isTouched(i)) {
+                    lastPointer = i;
+                }
+            }
+            if(Gdx.input.justTouched()) {
+                if(Gdx.input.getX(lastPointer) <= 800 && Gdx.input.getY(lastPointer) >= 1220)
+                    shipAcceleration = 0;
+            }
+            if(Gdx.input.isTouched()) {
+                if(Gdx.input.getX(lastPointer) <= 400 && Gdx.input.getY(lastPointer) >= 1220) {
+                    if(canILeft)
+                        shipAcceleration = 0;
+                    canILeft = false;
+                    canIRight = true;
+                    shipSpeed = -gameSpeed;
+                    basic.shipSpriteChange(2);
+                }
+                if(Gdx.input.getX(lastPointer) > 400 && Gdx.input.getX(lastPointer) <= 800 && Gdx.input.getY(lastPointer) >= 1220) {
+                    if(canIRight)
+                        shipAcceleration = 0;
+                    canIRight = false;
+                    canILeft = true;
+                    shipSpeed = gameSpeed;
+                    basic.shipSpriteChange(0);
+                }
+            }
+            else {
+                shipSpeed = 0;
+                basic.shipSpriteChange(1);
+            }
+        }
+        //CONTROLS 2
+        else if(whichControls == 2) {
+            int lastPointer = 0;
+            for (int i = 0; i < 6; i++) {
+                if (Gdx.input.isTouched(i)) {
+                    lastPointer = i;
+                }
+            }
+            if(Gdx.input.justTouched()) {
+                if(Gdx.input.getX(lastPointer) >= 280 && Gdx.input.getY(lastPointer) >= 1220)
+                    shipAcceleration = 0;
+            }
+            if(Gdx.input.isTouched()) {
+                if(Gdx.input.getX(lastPointer) >= 280 && Gdx.input.getX(lastPointer) < 680 && Gdx.input.getY(lastPointer) >= 1220) {
+                    if(canILeft)
+                        shipAcceleration = 0;
+                    canILeft = false;
+                    canIRight = true;
+                    shipSpeed = -gameSpeed;
+                    basic.shipSpriteChange(2);
+                }
+                if(Gdx.input.getX(lastPointer) > 680 && Gdx.input.getX(lastPointer) <= 1080 && Gdx.input.getY(lastPointer) >= 1220) {
+                    if(canIRight)
+                        shipAcceleration = 0;
+                    canIRight = false;
+                    canILeft = true;
+                    shipSpeed = gameSpeed;
+                    basic.shipSpriteChange(0);
+                }
+            }
+            else {
+                shipSpeed = 0;
+                basic.shipSpriteChange(1);
+            }
+        }
     }
 }

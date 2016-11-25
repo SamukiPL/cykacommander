@@ -22,7 +22,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 class ShopScreen implements Screen {
     private CykaGame game;
-    private GameBasic basic;
     private Stage stage;
     private FitViewport viewport;
     //BACKGROUND
@@ -52,7 +51,6 @@ class ShopScreen implements Screen {
 
     @Override
     public void show() {
-        basic = new GameBasic();
         //VIEWPORT
         viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
@@ -95,7 +93,7 @@ class ShopScreen implements Screen {
         tensPlace = (cash - ((thousandthsPlace * 1000) + (hundredthsPlace * 100))) / 10;
         onesPlace = cash - ((thousandthsPlace * 1000) + (hundredthsPlace * 100) + (tensPlace * 10));
         changeNumbers = new Timer();
-        numbersFrames = basic.spriteCutting("prices/shop_numbers.png", 5, 2);
+        numbersFrames = GameBasic.spriteCutting("prices/shop_numbers.png", 5, 2);
         currency = new Texture("prices/currency.png");
         //SHOP ITEMS
         CykaGame.prefs.putBoolean("isBought_0", true); //FIRST SHIP
@@ -105,7 +103,7 @@ class ShopScreen implements Screen {
         shopItems = new Texture[AMOUNT];
         shopButtons = new ImageButton[AMOUNT];
         //PRICES ANIMATION
-        Animation pricesFrames = basic.spriteCutting("prices/prices.png", 4, 4);
+        Animation pricesFrames = GameBasic.spriteCutting("prices/prices.png", 4, 4);
         //TIMER FOR NUMBERS
 
         shopPage = 0;
@@ -241,7 +239,6 @@ class ShopScreen implements Screen {
         for(int i = 0; i < AMOUNT; i++) {
             shopItems[i].dispose();
         }
-        basic.dispose();
     }
 
     private void showWallet(int...places) {

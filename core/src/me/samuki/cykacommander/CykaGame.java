@@ -19,7 +19,7 @@ class CykaGame extends Game {
 		camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
 		prefs = Gdx.app.getPreferences("game-prefs");
 
-		this.setScreen(new MenuScreen(this));
+		this.setScreen(new CykaSplashScreen(this));
 	}
 
 	@Override
