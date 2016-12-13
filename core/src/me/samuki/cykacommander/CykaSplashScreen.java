@@ -44,7 +44,7 @@ class CykaSplashScreen implements Screen {
         game.batch.draw(logo, (viewport.getWorldWidth()/2)-(558/2), 750, 558, 198);
         game.batch.end();
 
-        if (TimeUtils.millis()>(startTime+3000))
+        if (TimeUtils.millis()>(startTime+2000))
             game.setScreen(new MenuScreen(game));
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
         stage.draw();

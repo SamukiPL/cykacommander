@@ -68,9 +68,11 @@ class DeathScreen implements Screen {
         //PREFERENCES / SCORE
         numbersFrames = GameBasic.spriteCutting("death_screen/numbers_death.png", 5, 2);
         //CONTROLS OFF
+        System.out.println(CykaGame.prefs.getInteger("plays_counter", 0));
+        if(CykaGame.prefs.getInteger("plays_counter", 0) == 0)
+            CykaGame.prefs.putBoolean("controls_on", false);
         CykaGame.prefs.putInteger("plays_counter", CykaGame.prefs.getInteger("plays_counter", 0)+1);
         CykaGame.prefs.flush();
-        System.out.println(CykaGame.prefs.getInteger("plays_counter",0));
 
         int points = GameScreen.points;
         int a = points / 10;
