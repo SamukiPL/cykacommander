@@ -23,7 +23,7 @@ class ShopScreenShips extends ShopScreen implements Screen {
 
     private ImageButton.ImageButtonStyle useButton;
     //SHOPITEMS
-    private static final int AMOUNT = 6; //Ships for sale
+    private static final int AMOUNT = 18; //Ships for sale
     private int shopPage;
     private boolean setButtons;
 
@@ -31,7 +31,8 @@ class ShopScreenShips extends ShopScreen implements Screen {
     private TextureRegion[] priceText;
     private Texture[] shopItems;
     private ImageButton[] shopButtons;
-    private int[] prices = {0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 500, 750, 1000, 1250, 1500};
+    private int[] prices = {0, 25, 25, 50, 50, 50, 75, 75, 100, 125, 150, 175, 200, 225, 250, 500, 750, 1000, 1250, 1500};
+    private int[] shipPrice = {0, 1, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
     ShopScreenShips(CykaGame game) {
         super(game);
@@ -105,13 +106,13 @@ class ShopScreenShips extends ShopScreen implements Screen {
 
             isBought[index] = CykaGame.prefs.getBoolean("isBought_"+index, false);
             if(!isBought[index]) {
-                priceText[index] = pricesFrames.getKeyFrame(index);
+                priceText[index] = pricesFrames.getKeyFrame(shipPrice[index]);
                 shopItems[index] = new Texture("shop_items/shop_item_not_bought.png");
                 shopButtons[index] = new ImageButton(buyButton);
             }
             else {
-                priceText[index] = pricesFrames.getKeyFrame(index);
-                shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
+                priceText[index] = pricesFrames.getKeyFrame(shipPrice[index]);
+                shopItems[index] = new Texture("shop_items/rus/shop_ship_" + index + ".png");
                 shopButtons[index] = new ImageButton(useButton);
             }
             shopButtons[index].setVisible(false);
@@ -131,7 +132,7 @@ class ShopScreenShips extends ShopScreen implements Screen {
                             CykaGame.prefs.putInteger("cash", cash);
                             //HOLDING STATUS
                             CykaGame.prefs.putBoolean("isBought_"+index, true);
-                            shopItems[index] = new Texture("shop_items/shop_ship_" + index + ".png");
+                            shopItems[index] = new Texture("shop_items/rus/shop_ship_" + index + ".png");
                             isBought[index] = true;
                             shopButtons[index].setStyle(useButton);
                             //CHECK CHANGE
@@ -231,7 +232,7 @@ class ShopScreenShips extends ShopScreen implements Screen {
         int row = shopPage*2;
         for(int i = 0; i < 4; i++) {
             int item = i+row;
-            if(item > 5) {
+            if(item > AMOUNT-1) {
                 row = -2;
                 item = i+row;
             }

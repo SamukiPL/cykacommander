@@ -24,9 +24,9 @@ class ShopScreen implements Screen {
     //CASH
     static int cash;
     static int thousandthsPlace, hundredthsPlace, tensPlace, onesPlace;
-    static Timer changeNumbers;
-    static Animation numbersFrames;
-    static Texture currency;
+    protected static Timer changeNumbers;
+    protected static Animation numbersFrames;
+    protected static Texture currency;
 
     ShopScreen(CykaGame game) {
         this.game = game;
@@ -44,7 +44,7 @@ class ShopScreen implements Screen {
         background = new Texture("shop_background.png");
 
         //CASH
-        cash = CykaGame.prefs.getInteger("cash", 0);
+        cash = 5000;//CykaGame.prefs.getInteger("cash", 0);
         thousandthsPlace = cash / 1000;
         hundredthsPlace = (cash - (thousandthsPlace * 1000)) / 100;
         tensPlace = (cash - ((thousandthsPlace * 1000) + (hundredthsPlace * 100))) / 10;

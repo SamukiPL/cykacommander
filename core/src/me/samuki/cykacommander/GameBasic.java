@@ -29,7 +29,7 @@ class GameBasic {
     void loadSprites() {
         //SHIP ANIMATION
         int whichShip = CykaGame.prefs.getInteger("whichShip", 0);
-        shipAnimation = spriteCutting("ship_sprites/ship_sprite_"+whichShip+".png", SPRITE_COLS, SPRITE_ROWS);
+        shipAnimation = spriteCutting("ship_sprites/rus/ship_sprite_"+whichShip+".png", SPRITE_COLS, SPRITE_ROWS);
 
         //BULLET SPRITE
         bulletSprite = new Texture("use_button_0.png");
