@@ -23,9 +23,11 @@ class ShopScreenShips extends ShopScreen implements Screen {
 
     private ImageButton.ImageButtonStyle useButton;
     //SHOPITEMS
-    private static final int AMOUNT = 18; //Ships for sale
-    private int shopPage;
-    private boolean setButtons;
+    private static final int AMOUNT = 20; //Ships for sale
+
+    private float shopX = 0;
+    private int shopVelocity = 0;
+    int plusMinus;
 
     private boolean[] isBought;
     private TextureRegion[] priceText;
@@ -47,29 +49,16 @@ class ShopScreenShips extends ShopScreen implements Screen {
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
         //PAGE CHANGE
-        setButtons = true;
         Actor actor = new Actor();
         actor.setPosition(0, 0);
         actor.setSize(640, 1024);
         stage.addActor(actor);
         actor.addListener(new ActorGestureListener() {
             public void fling (InputEvent event, float velocityX, float velocityY, int button) {
-                if(velocityX > 1000) {
-                    shopPage--;
-                    for (ImageButton shopButton : shopButtons) {
-                        shopButton.setVisible(false);
-                        shopButton.setTouchable(Touchable.disabled);
-                        setButtons = true;
-                    }
-                }
-                else if(velocityX < -1000) {
-                    shopPage++;
-                    for (ImageButton shopButton : shopButtons) {
-                        shopButton.setVisible(false);
-                        shopButton.setTouchable(Touchable.disabled);
-                        setButtons = true;
-                    }
-                }
+                shopVelocity += velocityX;
+            }
+            public void pan(InputEvent event, float x, float y, float deltaX, float deltaY) {
+                shopX += deltaX;
             }
         });
 
@@ -82,9 +71,6 @@ class ShopScreenShips extends ShopScreen implements Screen {
         shopButtons = new ImageButton[AMOUNT];
         //PRICES ANIMATION
         Animation pricesFrames = GameBasic.spriteCutting("prices/prices.png", 4, 4);
-        //TIMER FOR NUMBERS
-
-        shopPage = 0;
 
         Skin buyUseSkin = new Skin();
         //BUY BUTTON STYLE
@@ -115,8 +101,6 @@ class ShopScreenShips extends ShopScreen implements Screen {
                 shopItems[index] = new Texture("shop_items/rus/shop_ship_" + index + ".png");
                 shopButtons[index] = new ImageButton(useButton);
             }
-            shopButtons[index].setVisible(false);
-            shopButtons[index].setTouchable(Touchable.disabled);
             stage.addActor(shopButtons[index]);
 
             shopButtons[index].addListener(new ClickListener() {
@@ -175,6 +159,7 @@ class ShopScreenShips extends ShopScreen implements Screen {
                 game.setScreen(new MenuScreen(game));
             }
         });
+        shopVelocity = 0;
     }
 
     @Override
@@ -182,10 +167,11 @@ class ShopScreenShips extends ShopScreen implements Screen {
         Gdx.gl.glClearColor(0.845f, 0.845f, 0.845f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        changeX();
+
         game.batch.begin();
-        game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        showWallet(thousandthsPlace, hundredthsPlace, tensPlace, onesPlace);
         shopItemsDraw();
+        showWallet(thousandthsPlace, hundredthsPlace, tensPlace, onesPlace);
         game.batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
@@ -220,38 +206,47 @@ class ShopScreenShips extends ShopScreen implements Screen {
         }
     }
 
+    private void changeX() {
+        if(shopVelocity != 0) {
+            if (shopVelocity > 0) {
+                shopVelocity -= 8000 * Gdx.graphics.getDeltaTime();
+                if(shopVelocity <= 0)
+                    shopVelocity = 0;
+            }
+            else if (shopVelocity < 0) {
+                shopVelocity += 8000 * Gdx.graphics.getDeltaTime();
+                if(shopVelocity >= 0)
+                    shopVelocity = 0;
+            }
+        }
+        shopX += Gdx.graphics.getDeltaTime()*shopVelocity;
+        if(shopX <= -2560) {
+            shopVelocity = 0;
+            shopX = -2560;
+        }
+        if(shopX >= 0) {
+            shopVelocity = 0;
+            shopX = 0;
+        }
+    }
+
     private void shopItemsDraw() {
         int shipSize;
-
-        if(shopPage > AMOUNT/2-1){
-            shopPage = 0;
+        for(int i = 0; i <= AMOUNT/4; i++) {
+            game.batch.draw(background, 0 + shopX + 640*i, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
         }
-        if(shopPage < 0) {
-            shopPage = AMOUNT/2-1;
-        }
-        int row = shopPage*2;
-        for(int i = 0; i < 4; i++) {
-            int item = i+row;
-            if(item > AMOUNT-1) {
-                row = -2;
-                item = i+row;
-            }
-            if(isBought[item])
+        for(int i = 0; i < AMOUNT; i++) {
+            if(isBought[i])
                 shipSize = 192;
             else {
                 shipSize = 128;
-                game.batch.draw(priceText[item], 160 - (135 / 2) + (160 * (i - (i % 2))), 728 - (415 * (i % 2)), 135, 72);
+                game.batch.draw(priceText[i], 160 - (135 / 2) + (160 * (i - (i % 2)))+shopX, 728 - (415 * (i % 2)), 135, 72);
             }
-            game.batch.draw(shopItems[item], 160-(shipSize/2)+(160*(i-(i%2))), 590-(415*(i%2)), shipSize, shipSize);
-            shopButtons[item].setPosition(160 - (shopButtons[item].getWidth()/2) + (160*(i-(i%2))), 465-(415*(i%2)));
-            if(setButtons) {
-                shopButtons[item].setVisible(true);
-                shopButtons[item].setTouchable(Touchable.enabled);
-                if(i == 3)
-                    setButtons = false;
-            }
-            }
+            game.batch.draw(shopItems[i], 160-(shipSize/2)+(160*(i-(i%2)))+shopX, 590-(415*(i%2)), shipSize, shipSize);
+            shopButtons[i].setPosition(160 - (shopButtons[i].getWidth()/2) + (160*(i-(i%2)))+shopX, 465-(415*(i%2)));
+
         }
+    }
 
     @Override
     void showWallet(int... places) {
