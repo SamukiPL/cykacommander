@@ -24,8 +24,8 @@ class DeathScreen implements Screen {
     private Texture background;
     private Animation numbersFrames;
     //NUMBERS
-    private TextureRegion tens;
-    private TextureRegion ones;
+    private static TextureRegion tens;
+    private static TextureRegion ones;
     //BEST SCORE
     private TextureRegion bestTens;
     private TextureRegion bestOnes;
@@ -75,10 +75,6 @@ class DeathScreen implements Screen {
         CykaGame.prefs.flush();
 
         int points = GameScreen.points;
-        int a = points / 10;
-        int b = points - (a * 10);
-        tens = numbersFrames.getKeyFrame(a, true);
-        ones = numbersFrames.getKeyFrame(b, true);
         setGameScore(points);
 
         int bestScore = CykaGame.prefs.getInteger("best-score", 0);
@@ -173,27 +169,19 @@ class DeathScreen implements Screen {
     }
     private void setGameScore(final int points) {
         Timer.schedule(new Timer.Task(){
-                           int count = 0;
+            int count = 0;
                            @Override
                            public void run() {
+                               int a = count / 10;
+                               int b = count - (a * 10);
                                count++;
-                               int a;
-                               int b;
-                               if(count < 25) {
-                                   a = MathUtils.random(10);
-                                   b = MathUtils.random(10);
-                               }
-                               else {
-                                   a = points / 10;
-                                   b = points - (a * 10);
-                               }
                                tens = numbersFrames.getKeyFrame(a, true);
                                ones = numbersFrames.getKeyFrame(b, true);
                            }
                        }
                 , 0f
-                , 0.02f
-                , 25
+                , 0.5f/(points*2)
+                , points
         );
     }
 }
