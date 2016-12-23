@@ -2,5 +2,13 @@
 <resources>
 
     <string name="app_name">CykaCommander</string>
+    <string name="share_1">Look, I\'ve got </string>
+    <plurals name="share_2">
+        <item quantity="one"> point in CykaCommander!</item>
+        <item quantity="other"> points in CykaCommander!</item>
+    </plurals>
+    <string name="share_3">"Try to beat me!"</string>
+    <string name="send_to">Share it!</string>
+    <string name="exception">No programs found :(</string>
 
 </resources>

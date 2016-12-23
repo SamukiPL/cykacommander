@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CykaCommander</string>
+    <string name="share_1">Popatrz na to, nabiłem </string>
+    <plurals name="share_2">
+        <item quantity="one"> punkt w CykaCommanderze!</item>
+        <item quantity="few"> punkty w CykaCommanderze!</item>
+        <item quantity="many"> punktów w CykaCommanderze!</item>
+    </plurals>
+    <string name="share_3">Spróbuj to przebić!</string>
+    <string name="send_to">Podziel się!</string>
+    <string name="exception">Nie znaleziono programów :(</string>
+
+</resources>

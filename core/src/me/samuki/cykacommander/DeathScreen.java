@@ -65,6 +65,11 @@ class DeathScreen implements Screen {
         menuButton.setBounds(0, 0, 300, 140);
         menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,300);
         stage.addActor(menuButton);
+        //SHARE
+        final Button shareButton = new Button(playAgainSkin.getDrawable("play_again_up"), playAgainSkin.getDrawable("play_again_down"));
+        shareButton.setBounds(0, 0, 300, 140);
+        shareButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,150);
+        stage.addActor(shareButton);
         //PREFERENCES / SCORE
         numbersFrames = GameBasic.spriteCutting("death_screen/numbers_death.png", 5, 2);
         //CONTROLS OFF
@@ -74,7 +79,7 @@ class DeathScreen implements Screen {
         CykaGame.prefs.putInteger("plays_counter", CykaGame.prefs.getInteger("plays_counter", 0)+1);
         CykaGame.prefs.flush();
 
-        int points = GameScreen.points;
+        final int points = GameScreen.points;
         setGameScore(points);
 
         int bestScore = CykaGame.prefs.getInteger("best-score", 0);
@@ -113,6 +118,12 @@ class DeathScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 game.setScreen(new MenuScreen(game));
+            }
+        });
+        shareButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                game.share.shareScore(points);
             }
         });
     }

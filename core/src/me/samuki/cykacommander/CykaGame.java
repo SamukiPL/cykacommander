@@ -4,13 +4,19 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-class CykaGame extends Game {
+class CykaGame extends Game implements ApplicationListener {
 	static final int SCREEN_WIDTH = 640;
 	static final int SCREEN_HEIGHT = 1024;
+
+	final ShareAction share;
 
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	static Preferences prefs;
+
+	CykaGame(ShareAction share) {
+		this.share = share;
+	}
 	
 	@Override
 	public void create () {
