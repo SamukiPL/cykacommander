@@ -26,6 +26,8 @@ class GameScreen implements Screen {
     private SoundsBase sounds;
     //INPUT PROCESSOR
     private Stage stage;
+    //BACKGROUND
+    private Texture background;
     //CONTROLS
     private int setControlsPrefs;
     private Actor leftControl, rightControl, shotControl;
@@ -72,6 +74,8 @@ class GameScreen implements Screen {
         //STAGE
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
+        //BACKGROUND
+        background = new Texture("stardust.png");
         //CONTROLS SET
         setControlsPrefs = CykaGame.prefs.getInteger("which_control");
         shotControl = new Actor();
@@ -137,8 +141,9 @@ class GameScreen implements Screen {
 
         gameLogic();
         game.batch.begin();
+        game.batch.draw(background,0,0);
         if(controlsOn)
-            controlsDraw(setControlsPrefs);
+            controlsDraw();
         game.batch.draw(basic.shipCurrentFrame,bucket.x,bucket.y, 128, 128);
         if(!pointHit)
             game.batch.draw(point, pointRect.x, pointRect.y, 50, 50);
@@ -250,6 +255,7 @@ class GameScreen implements Screen {
         // 0 = CLASSIC
         // 1 = LEFT JOYSTICK
         // 2 = RIGHT JOYSTICK
+        //Zmniejszyć jousticki
         if(whichControls == 0) {
             shotControl.setPosition(0,288);
             shotControl.setSize(640,774);
@@ -265,31 +271,31 @@ class GameScreen implements Screen {
             stage.addActor(rightControl);
         }
         else if(whichControls == 1) {
-            shotControl.setPosition(474, 0);
+            shotControl.setPosition(360, 0);
             shotControl.setSize(280, 280);
 
             leftControl = new Actor();
             leftControl.setPosition(0,0);
-            leftControl.setSize(237,288);
+            leftControl.setSize(137,288);
             stage.addActor(leftControl);
 
             rightControl = new Actor();
-            rightControl.setPosition(237,0);
-            rightControl.setSize(237,288);
+            rightControl.setPosition(137,0);
+            rightControl.setSize(137,288);
             stage.addActor(rightControl);
         }
         else if(whichControls == 2) {
             shotControl.setPosition(0, 0);
-            shotControl.setSize(166, 280);
+            shotControl.setSize(280, 280);
 
             leftControl = new Actor();
-            leftControl.setPosition(166,0);
-            leftControl.setSize(237,288);
+            leftControl.setPosition(366,0);
+            leftControl.setSize(137,288);
             stage.addActor(leftControl);
 
             rightControl = new Actor();
-            rightControl.setPosition(403,0);
-            rightControl.setSize(237,288);
+            rightControl.setPosition(503,0);
+            rightControl.setSize(137,288);
             stage.addActor(rightControl);
         }
 
@@ -328,37 +334,15 @@ class GameScreen implements Screen {
 
     }
 
-    private void controlsDraw(int whichControls) {
+    private void controlsDraw() {
         //CONTROLS COLOR...
-        if(whichControls == 0) {
             Color color = game.batch.getColor();
             float oldAlpha = color.a;
             color.a = 0.2f;
             game.batch.setColor(color);
-            game.batch.draw(joystickTexture, 32, 5, 576, 288);
-            game.batch.draw(controlsTexture[2], shotControl.getX(), shotControl.getY(), shotControl.getWidth(), shotControl.getHeight());
+            game.batch.draw(joystickTexture, leftControl.getX()+15, leftControl.getY()+15, leftControl.getWidth()+rightControl.getWidth()-15, 288-15);
+            game.batch.draw(shotButtonTexture, shotControl.getX()+15, shotControl.getY()+15, shotControl.getWidth()-15, shotControl.getHeight()-15);
             color.a = oldAlpha;
             game.batch.setColor(color);
-        }
-        if(whichControls == 1) {
-            Color color = game.batch.getColor();
-            float oldAlpha = color.a;
-            color.a = 0.2f;
-            game.batch.setColor(color);
-            game.batch.draw(joystickTexture, 10, 40, 480, 240);
-            game.batch.draw(shotButtonTexture, 521, 116, 87, 87);
-            color.a = oldAlpha;
-            game.batch.setColor(color);
-        }
-        if(whichControls == 2) {
-            Color color = game.batch.getColor();
-            float oldAlpha = color.a;
-            color.a = 0.2f;
-            game.batch.setColor(color);
-            game.batch.draw(joystickTexture, 140, 40, 480, 240);
-            game.batch.draw(shotButtonTexture, 30, 116, 87, 87);
-            color.a = oldAlpha;
-            game.batch.setColor(color);
-        }
     }
 }
