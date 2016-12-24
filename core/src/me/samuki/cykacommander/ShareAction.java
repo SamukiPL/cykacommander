@@ -1,7 +1,7 @@
 package me.samuki.cykacommander;
 
-public interface ShareAction {
+interface ShareAction {
 
-    public void shareScore(int score);
+    void shareScore(int score);
 
 }

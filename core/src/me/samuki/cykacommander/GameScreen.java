@@ -27,7 +27,10 @@ class GameScreen implements Screen {
     //INPUT PROCESSOR
     private Stage stage;
     //BACKGROUND
-    private Texture background;
+    private Texture background, dickMars, cykaEarth, cykaPlanet;
+    private int marsX, marsY;
+    private int earthX, earthY;
+    private int planetX, planetY;
     //CONTROLS
     private int setControlsPrefs;
     private Actor leftControl, rightControl, shotControl;
@@ -76,6 +79,12 @@ class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         //BACKGROUND
         background = new Texture("stardust.png");
+        dickMars = new Texture("planets/dickmars.png");
+        cykaEarth = new Texture("planets/cykaearth.png");
+        cykaPlanet = new Texture("planets/cykaplanet.png");
+        marsX = 590; marsY = 700;
+        earthX = 597; earthY = 466;
+        planetX = 697; planetY = 286;
         //CONTROLS SET
         setControlsPrefs = CykaGame.prefs.getInteger("which_control");
         shotControl = new Actor();
@@ -142,6 +151,7 @@ class GameScreen implements Screen {
         gameLogic();
         game.batch.begin();
         game.batch.draw(background,0,0);
+        planetDraw();
         if(controlsOn)
             controlsDraw();
         game.batch.draw(basic.shipCurrentFrame,bucket.x,bucket.y, 128, 128);
@@ -177,6 +187,10 @@ class GameScreen implements Screen {
             aControlsTexture.dispose();
         }
         joystickTexture.dispose();
+        background.dispose();
+        dickMars.dispose();
+        cykaEarth.dispose();
+        cykaPlanet.dispose();
     }
 
     private void gameLogic() {
@@ -344,5 +358,14 @@ class GameScreen implements Screen {
             game.batch.draw(shotButtonTexture, shotControl.getX()+15, shotControl.getY()+15, shotControl.getWidth()-15, shotControl.getHeight()-15);
             color.a = oldAlpha;
             game.batch.setColor(color);
+    }
+
+    private void planetDraw() {
+        game.batch.draw(dickMars, marsX, marsY, 100, 100);
+        game.batch.draw(cykaEarth, earthX, earthY, 86, 86);
+        game.batch.draw(cykaPlanet, planetX, planetY, 66, 66);
+    }
+    private void planetLogic() {
+
     }
 }
