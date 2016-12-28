@@ -28,9 +28,9 @@ class GameScreen implements Screen {
     private Stage stage;
     //BACKGROUND
     private Texture background, dickMars, cykaEarth, cykaPlanet;
-    private int marsX, marsY;
-    private int earthX, earthY;
-    private int planetX, planetY;
+    private float marsX, marsY;
+    private float earthX, earthY;
+    private float planetX, planetY;
     //CONTROLS
     private int setControlsPrefs;
     private Actor leftControl, rightControl, shotControl;
@@ -82,9 +82,9 @@ class GameScreen implements Screen {
         dickMars = new Texture("planets/dickmars.png");
         cykaEarth = new Texture("planets/cykaearth.png");
         cykaPlanet = new Texture("planets/cykaplanet.png");
-        marsX = 590; marsY = 700;
-        earthX = 597; earthY = 466;
-        planetX = 697; planetY = 286;
+        marsX = CykaGame.prefs.getFloat("mars_x", 950);
+        earthX = CykaGame.prefs.getFloat("earth_x", 342);
+        planetX = CykaGame.prefs.getFloat("planet_x", 750);
         //CONTROLS SET
         setControlsPrefs = CykaGame.prefs.getInteger("which_control");
         shotControl = new Actor();
@@ -126,7 +126,7 @@ class GameScreen implements Screen {
         pipeY = 1729;
         //POINTS
         pointRect = basic.spawnPoint(1629);
-        point = new Texture("on_button.png");
+        point = new Texture("coin.png");
         pointHit = false;
         howManyCash = 1;
 
@@ -236,6 +236,10 @@ class GameScreen implements Screen {
             }
             if (basic.hitbox(eggLeft, eggRight, frontPipe, backPipe, engines, body)) {
                 sounds.deathSound.play(volume);
+                CykaGame.prefs.putFloat("mars_x", marsX);
+                CykaGame.prefs.putFloat("earth_x", earthX);
+                CykaGame.prefs.putFloat("planet_x", planetX);
+                CykaGame.prefs.flush();
                 game.setScreen(new DeathScreen(game));
             }
 
@@ -360,12 +364,30 @@ class GameScreen implements Screen {
             game.batch.setColor(color);
     }
 
+    private void planetLogic() {
+        //MARS MOVING
+        if(marsX <= -110)
+            marsX = 1490;
+        marsX -= Math.ceil(Gdx.graphics.getDeltaTime())/20;
+        marsY = (float)(Math.sqrt((900*900) - (marsX - 590)*(marsX - 590)));
+        //EARTH MOVING
+        if(earthX <= -89) {
+            earthX = 1283;
+        }
+        earthX -= Math.ceil(Gdx.graphics.getDeltaTime())/18;
+        earthY = (float)(Math.sqrt((700*700) - (earthX - 597)*(earthX - 597)))-100;
+        //PLANET MOVING
+        if(planetX <= 157) {
+            planetX = 957;
+        }
+        planetX -= Math.ceil(Gdx.graphics.getDeltaTime())/16;
+        planetY = (float)(Math.sqrt((450*450) - (planetX - 607)*(planetX - 607)))-100;
+    }
+
     private void planetDraw() {
+        planetLogic();
         game.batch.draw(dickMars, marsX, marsY, 100, 100);
         game.batch.draw(cykaEarth, earthX, earthY, 86, 86);
         game.batch.draw(cykaPlanet, planetX, planetY, 66, 66);
-    }
-    private void planetLogic() {
-
     }
 }

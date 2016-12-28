@@ -66,9 +66,13 @@ class DeathScreen implements Screen {
         menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,300);
         stage.addActor(menuButton);
         //SHARE
-        final Button shareButton = new Button(playAgainSkin.getDrawable("play_again_up"), playAgainSkin.getDrawable("play_again_down"));
-        shareButton.setBounds(0, 0, 300, 140);
-        shareButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,150);
+        Skin shareSkin = new Skin();
+        shareSkin.add("share_up", new Texture("share_button_0.png"));
+        shareSkin.add("share_down", new Texture("share_button_1.png"));
+
+        final Button shareButton = new Button(shareSkin.getDrawable("share_up"), shareSkin.getDrawable("share_down"));
+        shareButton.setBounds(0, 0, 340, 140);
+        shareButton.setPosition(viewport.getWorldWidth()/2-shareButton.getWidth()/2,150);
         stage.addActor(shareButton);
         //PREFERENCES / SCORE
         numbersFrames = GameBasic.spriteCutting("death_screen/numbers_death.png", 5, 2);

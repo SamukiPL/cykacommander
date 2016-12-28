@@ -16,7 +16,7 @@ android {
     }
     defaultConfig {
         applicationId "me.samuki.cykacommander"
-        minSdkVersion 8
+        minSdkVersion 16
         targetSdkVersion 25
     }
 }
