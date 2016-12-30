@@ -20,7 +20,7 @@ import com.google.android.gms.ads.MobileAds;
 import me.samuki.cykacommander.CykaGame;
 
 public class AndroidLauncher extends AndroidApplication implements ShareAction {
-	final String AD_UNIT_ID = "";
+	final String AD_UNIT_ID = "ca-app-pub-5519384153835422/2811367393";
 
 	View gameView;
 	AdView adView;
@@ -50,9 +50,10 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction {
 
 	private AdView setAdView() {
 		adView = new AdView(this);
-		adView.setAdSize(AdSize.BANNER);
+		adView.setAdSize(AdSize.SMART_BANNER);
 		adView.setAdUnitId(AD_UNIT_ID);
 		adView.setId(0);
+		adView.setVisibility(View.VISIBLE);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
 		params.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
@@ -90,17 +91,20 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction {
 	@Override
 	public void onResume() {
 		super.onResume();
+		hideSystemUI();
 		if (adView != null) adView.resume();
 	}
 
 	@Override
 	public void onPause() {
+		hideSystemUI();
 		if (adView != null) adView.pause();
 		super.onPause();
 	}
 
 	@Override
 	public void onDestroy() {
+		hideSystemUI();
 		if (adView != null) adView.destroy();
 		super.onDestroy();
 	}
