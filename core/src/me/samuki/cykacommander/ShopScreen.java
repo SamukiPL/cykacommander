@@ -242,7 +242,7 @@ class ShopScreen implements Screen {
         game.batch.draw(currency, 572, 898, 48, 84);
     }
 
-    void cashDecrease(final int cashBefore, final int cashAfter) {
+    private void cashDecrease(final int cashBefore, final int cashAfter) {
         changeNumbers.clear();
         changeNumbers.scheduleTask(new Timer.Task(){
                                        int a = cashBefore-1;

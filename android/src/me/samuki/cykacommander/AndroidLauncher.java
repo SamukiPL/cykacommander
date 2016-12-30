@@ -20,7 +20,7 @@ import com.google.android.gms.ads.MobileAds;
 import me.samuki.cykacommander.CykaGame;
 
 public class AndroidLauncher extends AndroidApplication implements ShareAction {
-	final String AD_UNIT_ID = "ca-app-pub-5519384153835422/2811367393";
+	final String AD_UNIT_ID = "";
 
 	View gameView;
 	AdView adView;
