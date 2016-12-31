@@ -110,14 +110,22 @@ class GameBasic {
     void shipSpriteChange(int a) {
         shipCurrentFrame = shipAnimation.getKeyFrame(a, true);
     }
+
     void numbersDraw(int points, CykaGame game) {
-        int tensPlace = points / 10;
-        int onesPlace = points - (tensPlace * 10);
+        int hundredthsPlace = points / 100;
+        int tensPlace = (points - (hundredthsPlace * 100)) / 10;
+        int onesPlace = points - ((hundredthsPlace * 100) + (tensPlace * 10));
+        if (hundredthsPlace > 0) {
+            TextureRegion numbersCurrentFrame = numbersAnimation.getKeyFrame(hundredthsPlace, true);
+            game.batch.draw(numbersCurrentFrame, 592-96, 1024-84, 48, 84);
+            game.batch.draw(hudPoints, 582-96, 1024-94, 160, 94);
+        }
+        else
+            game.batch.draw(hudPoints, 582-48, 1024-94, 160, 94);
         TextureRegion numbersCurrentFrame = numbersAnimation.getKeyFrame(tensPlace, true);
-        game.batch.draw(numbersCurrentFrame, 592, 958, 24, 42);
+        game.batch.draw(numbersCurrentFrame, 592-48, 1024-84, 48, 84);
         numbersCurrentFrame = numbersAnimation.getKeyFrame(onesPlace, true);
-        game.batch.draw(numbersCurrentFrame, 616, 958, 24, 42);
-        game.batch.draw(hudPoints, 587, 953);
+        game.batch.draw(numbersCurrentFrame, 616-24, 1024-84, 48, 84);
     }
     void dispose() {
         hudPoints.dispose();

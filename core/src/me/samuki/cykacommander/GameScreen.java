@@ -368,19 +368,19 @@ class GameScreen implements Screen {
         //MARS MOVING
         if(marsX <= -110)
             marsX = 1490;
-        marsX -= Math.ceil(Gdx.graphics.getDeltaTime())/20;
+        marsX -= Math.ceil(Gdx.graphics.getDeltaTime())/150;
         marsY = (float)(Math.sqrt((900*900) - (marsX - 590)*(marsX - 590)));
         //EARTH MOVING
         if(earthX <= -89) {
             earthX = 1283;
         }
-        earthX -= Math.ceil(Gdx.graphics.getDeltaTime())/18;
+        earthX -= Math.ceil(Gdx.graphics.getDeltaTime())/142;
         earthY = (float)(Math.sqrt((700*700) - (earthX - 597)*(earthX - 597)))-100;
         //PLANET MOVING
         if(planetX <= 157) {
             planetX = 957;
         }
-        planetX -= Math.ceil(Gdx.graphics.getDeltaTime())/16;
+        planetX -= Math.ceil(Gdx.graphics.getDeltaTime())/135;
         planetY = (float)(Math.sqrt((450*450) - (planetX - 607)*(planetX - 607)))-100;
     }
 

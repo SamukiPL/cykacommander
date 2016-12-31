@@ -224,13 +224,14 @@ class ShopScreen implements Screen {
     public void dispose() {
         stage.dispose();
         background.dispose();
+        currency.dispose();
         for(int i = 0; i < AMOUNT; i++) {
             shopItems[i].dispose();
         }
     }
 
 
-    void showWallet(int... places) {
+    private void showWallet(int... places) {
         TextureRegion thousands =   numbersFrames.getKeyFrame(places[0], true);
         TextureRegion hundreds  =   numbersFrames.getKeyFrame(places[1], true);
         TextureRegion tens      =   numbersFrames.getKeyFrame(places[2], true);

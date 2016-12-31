@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -23,10 +22,15 @@ class DeathScreen implements Screen {
     //BACKGROUND
     private Texture background;
     private Animation numbersFrames;
+
+    private final int points = GameScreen.points;
+    private int bestScore = CykaGame.prefs.getInteger("best-score", 0);
     //NUMBERS
+    private static TextureRegion hundredths;
     private static TextureRegion tens;
     private static TextureRegion ones;
     //BEST SCORE
+    private TextureRegion bestHundredths;
     private TextureRegion bestTens;
     private TextureRegion bestOnes;
     private Texture bestScoreText;
@@ -83,10 +87,8 @@ class DeathScreen implements Screen {
         CykaGame.prefs.putInteger("plays_counter", CykaGame.prefs.getInteger("plays_counter", 0)+1);
         CykaGame.prefs.flush();
 
-        final int points = GameScreen.points;
         setGameScore(points);
 
-        int bestScore = CykaGame.prefs.getInteger("best-score", 0);
         int isBest = 0;
 
         if(points > bestScore) {
@@ -139,12 +141,8 @@ class DeathScreen implements Screen {
 
         game.batch.begin();
         game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        game.batch.draw(tens, 150, 714, 120, 240);
-        game.batch.draw(ones, 270, 714, 120, 240);
-        game.batch.draw(coin, 400, 770, 128, 128);
-        game.batch.draw(bestScoreText, 180, 615, 180, 85);
-        game.batch.draw(bestTens, 380, 615, 48, 84);
-        game.batch.draw(bestOnes, 428, 615, 48, 84);
+        drawScore(points);
+        drawBestScore(bestScore);
         game.batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
@@ -177,8 +175,10 @@ class DeathScreen implements Screen {
     }
 
     private void setBestScore(int points) {
-        int tensPlace = points / 10;
-        int onesPlace = points - (tensPlace * 10);
+        int hundredthsPlace = points / 100;
+        int tensPlace = (points - (hundredthsPlace * 100)) / 10;
+        int onesPlace = points - ((hundredthsPlace * 100) + (tensPlace * 10));
+        bestHundredths = numbersFrames.getKeyFrame(tensPlace, true);
         bestTens = numbersFrames.getKeyFrame(tensPlace, true);
         bestOnes = numbersFrames.getKeyFrame(onesPlace, true);
     }
@@ -187,16 +187,47 @@ class DeathScreen implements Screen {
             int count = 0;
                            @Override
                            public void run() {
-                               int a = count / 10;
-                               int b = count - (a * 10);
+                               int a = count / 100;
+                               int b = (count - (a * 100)) / 10;
+                               int c = count - ((a * 100) +(b * 10));
                                count++;
-                               tens = numbersFrames.getKeyFrame(a, true);
-                               ones = numbersFrames.getKeyFrame(b, true);
+                               hundredths = numbersFrames.getKeyFrame(a, true);
+                               tens = numbersFrames.getKeyFrame(b, true);
+                               ones = numbersFrames.getKeyFrame(c, true);
                            }
                        }
                 , 0f
                 , 0.5f/(points*2)
                 , points
         );
+    }
+
+    private void drawScore(int points) {
+        if(points <= 99) {
+            game.batch.draw(tens, 150, 714, 120, 240);
+            game.batch.draw(ones, 270, 714, 120, 240);
+            game.batch.draw(coin, 400, 770, 128, 128);
+        }
+        else {
+            game.batch.draw(hundredths, 76, 714, 120, 240);
+            game.batch.draw(tens, 196, 714, 120, 240);
+            game.batch.draw(ones, 316, 714, 120, 240);
+            game.batch.draw(coin, 466, 770, 128, 128);
+        }
+    }
+
+    private void drawBestScore(int bestScore) {
+        if(bestScore <= 99) {
+            game.batch.draw(bestScoreText, 180, 615, 180, 85);
+            game.batch.draw(bestTens, 380, 615, 48, 84);
+            game.batch.draw(bestOnes, 428, 615, 48, 84);
+        }
+        else {
+            game.batch.draw(bestScoreText, 158, 615, 180, 85);
+            game.batch.draw(bestHundredths, 358, 615, 48, 84);
+            game.batch.draw(bestTens, 406, 615, 48, 84);
+            game.batch.draw(bestOnes, 454, 615, 48, 84);
+
+        }
     }
 }

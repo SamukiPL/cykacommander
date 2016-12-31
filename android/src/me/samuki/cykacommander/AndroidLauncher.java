@@ -31,6 +31,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction {
 		hideSystemUI();
 
 		AndroidApplicationConfiguration cfg = new AndroidApplicationConfiguration();
+		cfg.useImmersiveMode = true;
 		cfg.useAccelerometer = false;
 		cfg.useCompass = false;
 
@@ -50,7 +51,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction {
 
 	private AdView setAdView() {
 		adView = new AdView(this);
-		adView.setAdSize(AdSize.SMART_BANNER);
+		adView.setAdSize(AdSize.BANNER);
 		adView.setAdUnitId(AD_UNIT_ID);
 		adView.setId(0);
 		adView.setVisibility(View.VISIBLE);
@@ -73,7 +74,9 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction {
 	}
 
 	private void startAdvertising(AdView adView) {
-		AdRequest adRequest = new AdRequest.Builder().build();
+		AdRequest adRequest = new AdRequest.Builder()
+				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+				.build();
 		adView.loadAd(adRequest);
 	}
 

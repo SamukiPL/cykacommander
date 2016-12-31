@@ -19,7 +19,6 @@ class CykaSplashScreen implements Screen {
     private FitViewport viewport;
     private long startTime;
 
-    private Texture background, vodka;
     private Texture samukiLogo;
 
     private Timer timer;
@@ -38,10 +37,6 @@ class CykaSplashScreen implements Screen {
         //STAGE
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
-        //BACKGROUND
-        background = new Texture("menu_background.png");
-        vodka = new Texture("vodka.png");
-
         samukiLogo = new Texture("samuki_logo.png");
 
         startTime = TimeUtils.millis();
@@ -108,5 +103,6 @@ class CykaSplashScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+        samukiLogo.dispose();
     }
 }
