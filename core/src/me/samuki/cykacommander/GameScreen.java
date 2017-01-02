@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -23,7 +24,9 @@ import java.util.Iterator;
 class GameScreen implements Screen {
     private CykaGame game;
     private GameBasic basic;
+    //SOUND
     private SoundsBase sounds;
+    private float volume;
     //INPUT PROCESSOR
     private Stage stage;
     //BACKGROUND
@@ -47,8 +50,10 @@ class GameScreen implements Screen {
     //BULLET
     private Rectangle bulletRect;
     private boolean shotFired;
+    private int bulletsMagazine;
     //PIPES COORDINATES
     private Array<Rectangle> frontPipes, backPipes;
+    private Array<Boolean> pipeGone;
     private boolean makePipe;
     private int pipeY;
     //POINTS COORDINATES
@@ -58,8 +63,6 @@ class GameScreen implements Screen {
     private int howManyCash;
     //POINTS/SCORE
     static int points;
-    //SOUND
-    private float volume;
 
     GameScreen(CykaGame game) {
         this.game = game;
@@ -70,7 +73,13 @@ class GameScreen implements Screen {
     public void show() {
         basic = new GameBasic();
         basic.loadSprites();
-        sounds = new SoundsBase();
+        //SOUNDS
+        sounds = new SoundsBase(0);
+
+        if(CykaGame.prefs.getBoolean("sound", true))
+            volume = 1f;
+        else
+            volume = 0;
         //VIEWPORT
         FitViewport viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
@@ -91,17 +100,6 @@ class GameScreen implements Screen {
         setControls(setControlsPrefs);
         stage.addActor(shotControl);
 
-        shotFired = false;
-        shotControl.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if(!shotFired) {
-                    bulletRect = basic.spawnBullet(bucket.x);
-                    shotFired = true;
-                }
-            }
-        });
-
         controlsTexture = new Texture[3];
         for(int i = 0; i < 3; i++) {
             Texture tmpControl = new Texture("control_"+i+".png");
@@ -121,7 +119,8 @@ class GameScreen implements Screen {
         //PIPES ARRAYS
         frontPipes = new Array<Rectangle>();
         backPipes = new Array<Rectangle>();
-        basic.spawnLine(1086, -220, frontPipes, backPipes);
+        pipeGone = new Array<Boolean>();
+        basic.spawnLine(1086, -220, frontPipes, backPipes, pipeGone);
         makePipe = true;
         pipeY = 1729;
         //POINTS
@@ -136,11 +135,6 @@ class GameScreen implements Screen {
 
         Gdx.input.setCatchBackKey(true);
 
-        //SOUNDS
-        if(CykaGame.prefs.getBoolean("sound", true))
-            volume = 1f;
-        else
-            volume = 0;
     }
 
     @Override
@@ -215,22 +209,29 @@ class GameScreen implements Screen {
         //PIPES WORK
         Iterator<Rectangle> frontIter = frontPipes.iterator();
         Iterator<Rectangle> backIter = backPipes.iterator();
+        Iterator<Boolean> pipeGoneIter = pipeGone.iterator();
         while(frontIter.hasNext()){
             Rectangle frontPipe = frontIter.next();
             Rectangle backPipe = backIter.next();
+            boolean isPipeGone = pipeGoneIter.next();
             if(makePipe) {
-                basic.spawnLine(pipeY, (int)frontPipe.width, frontPipes, backPipes);
+                basic.spawnLine(pipeY, (int)frontPipe.width, frontPipes, backPipes, pipeGone);
                 pipeY = 1222;
                 makePipe = false;
             }
             frontPipe.y -= gameSpeed*(Gdx.graphics.getDeltaTime()/60);
             backPipe.y = frontPipe.y;
+            if(frontPipe.y < 35 && !isPipeGone) {
+                pipeGone.insert(0, true);
+                sounds.pointSound.play(volume);
+                points++;
+                bulletsMagazine = 1;
+            }
             if(frontPipe.y < -64) {
                 makePipe = true;
-
                 frontIter.remove();
                 backIter.remove();
-                points++;
+                pipeGoneIter.remove();
                 //CASH
                 howManyCash = 1+(points/5);
             }
@@ -246,6 +247,7 @@ class GameScreen implements Screen {
             if(shotFired) {
                 bulletRect.y += gameSpeed*3*(Gdx.graphics.getDeltaTime()/60);
                 if(Intersector.overlaps(bulletRect, pointRect)) {
+                    sounds.coinHitSound.play(volume);
                     pointHit = true;
                     shotFired = false;
                     int cash = CykaGame.prefs.getInteger("cash", 0)+howManyCash;
@@ -350,6 +352,19 @@ class GameScreen implements Screen {
             }
         });
 
+        shotFired = false;
+        bulletsMagazine = 1;
+        shotControl.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(!shotFired && bulletsMagazine > 0) {
+                    sounds.shotSound.play(volume);
+                    bulletRect = basic.spawnBullet(bucket.x);
+                    shotFired = true;
+                    bulletsMagazine = 0;
+                }
+            }
+        });
     }
 
     private void controlsDraw() {
@@ -368,19 +383,19 @@ class GameScreen implements Screen {
         //MARS MOVING
         if(marsX <= -110)
             marsX = 1490;
-        marsX -= Math.ceil(Gdx.graphics.getDeltaTime())/150;
+        marsX -= Math.ceil(Gdx.graphics.getDeltaTime())/40;
         marsY = (float)(Math.sqrt((900*900) - (marsX - 590)*(marsX - 590)));
         //EARTH MOVING
         if(earthX <= -89) {
             earthX = 1283;
         }
-        earthX -= Math.ceil(Gdx.graphics.getDeltaTime())/142;
+        earthX -= Math.ceil(Gdx.graphics.getDeltaTime())/40;
         earthY = (float)(Math.sqrt((700*700) - (earthX - 597)*(earthX - 597)))-100;
         //PLANET MOVING
         if(planetX <= 157) {
             planetX = 957;
         }
-        planetX -= Math.ceil(Gdx.graphics.getDeltaTime())/135;
+        planetX -= Math.ceil(Gdx.graphics.getDeltaTime())/40;
         planetY = (float)(Math.sqrt((450*450) - (planetX - 607)*(planetX - 607)))-100;
     }
 

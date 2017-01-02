@@ -19,6 +19,9 @@ class SettingsScreen implements Screen {
     private CykaGame game;
     private Stage stage;
     private FitViewport viewport;
+    //SOUNDS
+    private SoundsBase sounds;
+    private float volume;
     //BACKGROUND
     private Texture background;
     //SETTINGS VALUES
@@ -37,6 +40,13 @@ class SettingsScreen implements Screen {
 
     @Override
     public void show() {
+        //SOUNDS
+        sounds = new SoundsBase(1);
+
+        if(CykaGame.prefs.getBoolean("sound", true))
+            volume = 1f;
+        else
+            volume = 0;
         //VIEWPORT
         viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
@@ -100,6 +110,7 @@ class SettingsScreen implements Screen {
         buttonSound.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 CykaGame.prefs.putBoolean("sound", !soundOn);
                 CykaGame.prefs.flush();
                 soundOn = CykaGame.prefs.getBoolean("sound");
@@ -108,6 +119,7 @@ class SettingsScreen implements Screen {
         buttonControls.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 CykaGame.prefs.putBoolean("controls_on", !controlsOn);
                 CykaGame.prefs.flush();
                 controlsOn = CykaGame.prefs.getBoolean("controls_on");
@@ -116,6 +128,7 @@ class SettingsScreen implements Screen {
         leftArrow.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 switch (setControl) {
                     case 0:
                         setControl = 2;
@@ -135,6 +148,7 @@ class SettingsScreen implements Screen {
         rightArrow.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 switch (setControl) {
                     case 0:
                         setControl = 1;
@@ -154,6 +168,7 @@ class SettingsScreen implements Screen {
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 game.setScreen(new MenuScreen(game));
             }
         });

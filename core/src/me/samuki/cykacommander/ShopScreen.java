@@ -25,6 +25,9 @@ class ShopScreen implements Screen {
     private FitViewport viewport;
     //BACKGROUND
     private static Texture background;
+    //SOUNDS
+    private SoundsBase sounds;
+    private float volume;
     //CASH
     private static int cash;
     private static int thousandthsPlace, hundredthsPlace, tensPlace, onesPlace;
@@ -52,6 +55,13 @@ class ShopScreen implements Screen {
 
     @Override
     public void show() {
+        //SOUNDS
+        sounds = new SoundsBase(2);
+
+        if(CykaGame.prefs.getBoolean("sound", true))
+            volume = 1f;
+        else
+            volume = 0;
         //VIEWPORT
         viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
@@ -132,6 +142,7 @@ class ShopScreen implements Screen {
                     if(!isBought[index]) {
                         //IF NOT BOUGHT
                         if(cash >= prices[index]) {
+                            sounds.canBuySound.play(volume);
                             //CASH CHANGE
                             int tmpCash = cash;
                             cash-= prices[index];
@@ -149,9 +160,12 @@ class ShopScreen implements Screen {
                             //REMEMBER THAT!
                             CykaGame.prefs.flush();
                         }
+                        else
+                            sounds.cantBuySound.play(volume);
                     }
                     else {
                         if (shopButtons[index].isChecked()) {
+                            sounds.buttonClickSound.play(volume);
                             shopButtons[CykaGame.prefs.getInteger("whichShip", 0)].setChecked(false);
                             CykaGame.prefs.putInteger("whichShip", index);
                             CykaGame.prefs.flush();
@@ -179,9 +193,11 @@ class ShopScreen implements Screen {
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 game.setScreen(new MenuScreen(game));
             }
         });
+
     }
 
     @Override

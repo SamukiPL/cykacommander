@@ -42,7 +42,7 @@ class GameBasic {
         numbersAnimation = spriteCutting("numbers_bitmap.png", NUMBERS_COLS, NUMBERS_ROWS);
     }
     //SPAWNS
-    void spawnLine(float y, int lastWidth, Array<Rectangle> frontPipes, Array<Rectangle> backPipes) {
+    void spawnLine(float y, int lastWidth, Array<Rectangle> frontPipes, Array<Rectangle> backPipes, Array<Boolean> pipeGone) {
         int frontWidth = MathUtils.random(640-128-50);
         while(frontWidth > (lastWidth-200) && frontWidth < (lastWidth+200)) {
             frontWidth = MathUtils.random(640-128-50);
@@ -51,6 +51,7 @@ class GameBasic {
         Rectangle backPipe = new Rectangle(frontWidth+128+50,y,462-frontWidth,50);
         frontPipes.add(frontPipe);
         backPipes.add(backPipe);
+        pipeGone.add(false);
     }
     Rectangle spawnPoint(float y) {
         int pointPossition = MathUtils.random(300);

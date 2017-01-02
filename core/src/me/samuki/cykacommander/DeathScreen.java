@@ -19,6 +19,9 @@ class DeathScreen implements Screen {
     private CykaGame game;
     private Stage stage;
     private FitViewport viewport;
+    //SOUNDS
+    private SoundsBase sounds;
+    private float volume;
     //BACKGROUND
     private Texture background;
     private Animation numbersFrames;
@@ -43,6 +46,13 @@ class DeathScreen implements Screen {
 
     @Override
     public void show() {
+        //SOUNDS
+        sounds = new SoundsBase(1);
+
+        if(CykaGame.prefs.getBoolean("sound", true))
+            volume = 1f;
+        else
+            volume = 0;
         //VIEWPORT
         viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
@@ -117,18 +127,21 @@ class DeathScreen implements Screen {
         playAgainButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 game.setScreen(new GameScreen(game));
             }
         });
         menuButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 game.setScreen(new MenuScreen(game));
             }
         });
         shareButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 game.share.shareScore(points);
             }
         });

@@ -16,6 +16,9 @@ class MenuScreen implements Screen {
     private CykaGame game;
     private Stage stage;
     private FitViewport viewport;
+    //SOUNDS
+    private SoundsBase sounds;
+    private float volume;
     //BACKGROUND
     private Texture background, vodka;
     private int vodkaX;
@@ -32,6 +35,13 @@ class MenuScreen implements Screen {
 
     @Override
     public void show() {
+        //SOUNDS
+        sounds = new SoundsBase(1);
+
+        if(CykaGame.prefs.getBoolean("sound", true))
+            volume = 1f;
+        else
+            volume = 0;
         //VIEWPORT
         viewport = new FitViewport(CykaGame.SCREEN_WIDTH, CykaGame.SCREEN_HEIGHT, game.camera);
         viewport.setScaling(Scaling.stretch);
@@ -77,18 +87,21 @@ class MenuScreen implements Screen {
         playButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 game.setScreen(new GameScreen(game));
             }
         });
         shopButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 game.setScreen(new ShopScreen(game));
             }
         });
         settingsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
                 game.setScreen(new SettingsScreen(game));
             }
         });
