@@ -8,7 +8,10 @@
         <item quantity="other"> points in CykaCommander!</item>
     </plurals>
     <string name="share_3">"Try to beat me!"</string>
+    <string name="link" translatable="false">https://play.google.com/store/apps/details?id=me.samuki.cykacommander</string>
     <string name="send_to">Share it!</string>
     <string name="exception">No programs found :(</string>
+
+    <string name="gender_result">I don\'t care anyway.</string>
 
 </resources>

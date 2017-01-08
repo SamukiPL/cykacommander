@@ -6,6 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.google.gms:google-services:3.0.0'
     }
 }
 
@@ -46,7 +47,14 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         compile 'com.google.android.gms:play-services-ads:10.0.1'
+        compile ('com.google.android.gms:play-services-games:10.0.1') {
+            exclude group: 'com.android.support', module: 'support-v4'
+        }
+        compile project(':BaseGameUtils')
+        compile 'com.android.support:multidex:1.0.1'
+
     }
+    apply plugin: 'com.google.gms.google-services'
 }
 
 project(":core") {

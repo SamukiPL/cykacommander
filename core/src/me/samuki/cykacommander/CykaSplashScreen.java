@@ -21,7 +21,6 @@ class CykaSplashScreen implements Screen {
 
     private Texture samukiLogo;
 
-    private Timer timer;
     private Animation appLogoAnimation;
     private TextureRegion appLogo;
 
@@ -44,7 +43,7 @@ class CykaSplashScreen implements Screen {
         appLogoAnimation = GameBasic.spriteCutting("splash_screen_logo.png", 3, 3);
         appLogo = appLogoAnimation.getKeyFrame(0);
 
-        timer = new Timer();
+        Timer timer = new Timer();
         timer.scheduleTask(new Timer.Task() {
                             int a = 0;
                                 @Override

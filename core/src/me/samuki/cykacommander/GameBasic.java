@@ -23,7 +23,7 @@ class GameBasic {
     //NUMBERS
     private static final int NUMBERS_COLS = 5;
     private static final int NUMBERS_ROWS = 2;
-    static Animation numbersAnimation;
+    private static Animation numbersAnimation;
     private Texture hudPoints;
 
     void loadSprites() {

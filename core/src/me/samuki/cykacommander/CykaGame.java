@@ -9,13 +9,15 @@ class CykaGame extends Game implements ApplicationListener {
 	static final int SCREEN_HEIGHT = 1024;
 
 	final ShareAction share;
+	static PlayServices playServices;
 
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	static Preferences prefs;
 
-	CykaGame(ShareAction share) {
+	CykaGame(ShareAction share, PlayServices playServices) {
 		this.share = share;
+		CykaGame.playServices = playServices;
 	}
 	
 	@Override

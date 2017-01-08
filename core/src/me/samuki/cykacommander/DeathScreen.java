@@ -91,10 +91,9 @@ class DeathScreen implements Screen {
         //PREFERENCES / SCORE
         numbersFrames = GameBasic.spriteCutting("death_screen/numbers_death.png", 5, 2);
         //CONTROLS OFF
-        System.out.println(CykaGame.prefs.getInteger("plays_counter", 0));
-        if(CykaGame.prefs.getInteger("plays_counter", 0) == 0)
+        if(CykaGame.prefs.getInteger("plays_counter", 1) == 1)
             CykaGame.prefs.putBoolean("controls_on", false);
-        CykaGame.prefs.putInteger("plays_counter", CykaGame.prefs.getInteger("plays_counter", 0)+1);
+        CykaGame.prefs.putInteger("plays_counter", CykaGame.prefs.getInteger("plays_counter", 1)+1);
         CykaGame.prefs.flush();
 
         setGameScore(points);
@@ -122,6 +121,11 @@ class DeathScreen implements Screen {
         else if (points < 50)
             coinNumber = 4;
         coin = new Texture("death_screen/coin_"+coinNumber+".png");
+
+        if(CykaGame.playServices.isSignedIn()) {
+            CykaGame.playServices.unlockAchievement(bestScore, CykaGame.prefs.getInteger("plays_counter"));
+            CykaGame.playServices.submitScore(bestScore);
+        }
 
         //BUTTONS INPUT
         playAgainButton.addListener(new ChangeListener() {

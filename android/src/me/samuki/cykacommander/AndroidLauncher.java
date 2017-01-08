@@ -1,23 +1,32 @@
 package me.samuki.cykacommander;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.games.Games;
+import com.google.example.games.basegameutils.GameHelper;
 
-public class AndroidLauncher extends AndroidApplication implements ShareAction {
+public class AndroidLauncher extends AndroidApplication implements ShareAction, PlayServices {
 	final String AD_UNIT_ID = "";
+
+	private GameHelper gameHelper;
+	private final static int requestCode = 1;
 
 	AdView adView;
 
@@ -25,17 +34,44 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction {
 	RelativeLayout.LayoutParams paramsAds;
 	int gameViewTopMargin;
 
+	private final Handler handler = new Handler() {
+		public void handleMessage(Message msg) {
+			String genderResult = getResources().getString(R.string.gender_result);
+			String exception = getResources().getString(R.string.exception);
+
+			if(msg.arg1 == 1)
+				Toast.makeText(getApplicationContext(),genderResult, Toast.LENGTH_LONG).show();
+			if(msg.arg1 == 2)
+				Toast.makeText(getApplicationContext(),exception, Toast.LENGTH_LONG).show();
+		}
+	};
+
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//GOOGLE PLAY GAME SERVICES
+		gameHelper = new GameHelper(this, GameHelper.CLIENT_GAMES);
+		gameHelper.enableDebugLog(false);
+
+		GameHelper.GameHelperListener gameHelperListener = new GameHelper.GameHelperListener()
+		{
+			@Override
+			public void onSignInFailed(){ }
+
+			@Override
+			public void onSignInSucceeded(){ }
+		};
+
+		gameHelper.setup(gameHelperListener);
+
+
+		//ADS AND VIEW
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 
-		// Create a gameView and a bannerAd AdView
-		final View gameView = initializeForView(new CykaGame(this), config);
+		final View gameView = initializeForView(new CykaGame(this, this), config);
 		gameViewTopMargin = AdSize.SMART_BANNER.getHeightInPixels(this.getContext());
 		setupAds();
 
-		// Define the layout
 		RelativeLayout layout = new RelativeLayout(this);
 		paramsGame = new RelativeLayout.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
@@ -44,6 +80,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction {
 		paramsAds = new RelativeLayout.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT);
+		paramsAds.setMargins(0, -gameViewTopMargin, 0, 0);
 		paramsAds.addRule(RelativeLayout.ALIGN_TOP);
 		paramsAds.addRule(RelativeLayout.ABOVE, gameView.getId());
 		layout.addView(adView, paramsAds);
@@ -87,6 +124,27 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction {
 				adView.setLayoutParams(paramsAds);
 			}
 		});
+	}
+
+	@Override
+	protected void onStart()
+	{
+		super.onStart();
+		gameHelper.onStart(this);
+	}
+
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+		gameHelper.onStop();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		gameHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
 	public void setupAds() {
@@ -137,21 +195,204 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction {
 	}
 
 	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+
+		if (hasFocus) {
+			delayedHide(300);
+		} else {
+			mHideHandler.removeMessages(0);
+		}
+	}
+
+	private final Handler mHideHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			hideSystemUI();
+		}
+	};
+
+	private void delayedHide(int delayMillis) {
+		mHideHandler.removeMessages(0);
+		mHideHandler.sendEmptyMessageDelayed(0, delayMillis);
+	}
+
+	@Override
 	public void shareScore(int score) {
 		String share1 = getResources().getString(R.string.share_1);
 		String share2 = getResources().getQuantityString(R.plurals.share_2, score);
 		String share3 = getResources().getString(R.string.share_3);
+		String link = getResources().getString(R.string.link);
 		String title  = getResources().getString(R.string.send_to);
-		String exception = getResources().getString(R.string.exception);
 
 		Intent sendIntent = new Intent(Intent.ACTION_SEND);
 		sendIntent.putExtra(Intent.EXTRA_SUBJECT, title);
-		sendIntent.putExtra(Intent.EXTRA_TEXT, share1+" "+score+" "+share2+"\n"+share3);
+		sendIntent.putExtra(Intent.EXTRA_TEXT, share1+" "+score+" "+share2+"\n"+share3+"\n"+link);
 		sendIntent.setType("text/plain");
 		try {
 			startActivity(Intent.createChooser(sendIntent, title));
 		} catch (android.content.ActivityNotFoundException ex) {
-			Toast.makeText(AndroidLauncher.this, exception, Toast.LENGTH_LONG).show();
+			Message msg = handler.obtainMessage();
+			msg.arg1 = 2;
+			handler.sendMessage(msg);
 		}
+	}
+	@Override
+	public void genderResult() {
+		Message msg = handler.obtainMessage();
+		msg.arg1 = 1;
+		handler.sendMessage(msg);
+	}
+
+	//GOOGLE PLAY SERVICES
+	@Override
+	public void signIn()
+	{
+		try
+		{
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					gameHelper.beginUserInitiatedSignIn();
+				}
+			});
+		}
+		catch (Exception e)
+		{
+			Gdx.app.log("MainActivity", "Log in failed: " + e.getMessage() + ".");
+		}
+	}
+
+	@Override
+	public void signOut()
+	{
+		try
+		{
+			runOnUiThread(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					gameHelper.signOut();
+				}
+			});
+		}
+		catch (Exception e)
+		{
+			Gdx.app.log("MainActivity", "Log out failed: " + e.getMessage() + ".");
+		}
+	}
+
+	@Override
+	public void rateGame()
+	{
+		String str = "https://play.google.com/store/apps/details?id=me.samuki.cykacommander";
+		startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(str)));
+	}
+
+	@Override
+	public void unlockAchievement(int score, int gamesPlayed)
+	{
+		if(score >= 10) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_10_points_or_more));
+		}
+		if(score >= 20) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_20_points_or_more));
+		}
+		if(score >= 30) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_30_points_or_more));
+		}
+		if(score >= 40) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_40_points_or_more));
+		}
+		if(score >= 50) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_50_points_or_more));
+		}
+		if(score >= 75) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_75_points_or_more));
+		}
+		if(score >= 100) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_100_points_or_more));
+		}
+		if(gamesPlayed >= 1) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_first_game_thank_you));
+		}
+		if(gamesPlayed >= 10) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_play_10_games));
+		}
+		if(gamesPlayed >= 100) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_play_100_games));
+		}
+		if(gamesPlayed >= 250) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_play_250_games));
+		}
+		if(gamesPlayed >= 500) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_play_500_games));
+		}
+		if(gamesPlayed >= 1000) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_play_1000_games));
+		}
+		if(gamesPlayed >= 2500) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_play_2500_games));
+		}
+	}
+
+	@Override
+	public void submitScore(int highScore)
+	{
+		if (isSignedIn())
+		{
+			Games.Leaderboards.submitScore(gameHelper.getApiClient(),
+					getString(R.string.leaderboard_best_score_from_all_around_the_world), highScore);
+		}
+	}
+
+	@Override
+	public void showAchievement()
+	{
+		if (isSignedIn())
+		{
+			startActivityForResult(Games.Achievements.getAchievementsIntent(gameHelper.getApiClient()), requestCode);
+		}
+		else
+		{
+			signIn();
+		}
+	}
+
+	@Override
+	public void showScore()
+	{
+		if (isSignedIn())
+		{
+			startActivityForResult(Games.Leaderboards.getLeaderboardIntent(gameHelper.getApiClient(),
+					getString(R.string.leaderboard_best_score_from_all_around_the_world)), requestCode);
+		}
+		else
+		{
+			signIn();
+		}
+	}
+
+	@Override
+	public boolean isSignedIn()
+	{
+		return gameHelper.isSignedIn();
 	}
 }

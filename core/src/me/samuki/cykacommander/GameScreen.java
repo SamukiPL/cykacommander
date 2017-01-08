@@ -15,7 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -34,8 +33,6 @@ class GameScreen implements Screen {
     private float marsX, marsY;
     private float earthX, earthY;
     private float planetX, planetY;
-    //CONTROLS
-    private int setControlsPrefs;
     private Actor leftControl, rightControl, shotControl;
     private float gameSpeed, shipSpeed, shipAcceleration;
     private boolean canILeft = false;
@@ -95,7 +92,7 @@ class GameScreen implements Screen {
         earthX = CykaGame.prefs.getFloat("earth_x", 342);
         planetX = CykaGame.prefs.getFloat("planet_x", 750);
         //CONTROLS SET
-        setControlsPrefs = CykaGame.prefs.getInteger("which_control");
+        int setControlsPrefs = CykaGame.prefs.getInteger("which_control");
         shotControl = new Actor();
         setControls(setControlsPrefs);
         stage.addActor(shotControl);
@@ -233,7 +230,8 @@ class GameScreen implements Screen {
                 backIter.remove();
                 pipeGoneIter.remove();
                 //CASH
-                howManyCash = 1+(points/5);
+                if(points%5 == 0)
+                    howManyCash += 1;
             }
             if (basic.hitbox(eggLeft, eggRight, frontPipe, backPipe, engines, body)) {
                 sounds.deathSound.play(volume);

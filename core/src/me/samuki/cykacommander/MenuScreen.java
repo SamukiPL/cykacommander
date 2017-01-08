@@ -5,10 +5,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -28,6 +32,8 @@ class MenuScreen implements Screen {
     private Skin playSkin;
     private Skin shopSkin;
     private Skin settingsSkin;
+    private Skin leaderboardSkin;
+    private Skin achievementSkin;
 
     MenuScreen(CykaGame game){
         this.game = game;
@@ -83,6 +89,25 @@ class MenuScreen implements Screen {
         settingsButton.setPosition(viewport.getWorldWidth()/2-settingsButton.getWidth()/2, 250);
         stage.addActor(settingsButton);
 
+        //GOOGLE GAME SERVICES
+        leaderboardSkin = new Skin();
+        leaderboardSkin.add("leaderboard_up", new Texture("leaderboard_button_0.png"));
+        leaderboardSkin.add("leaderboard_down", new Texture("leaderboard_button_1.png"));
+
+        final Button leaderboardButton = new Button(leaderboardSkin.getDrawable("leaderboard_up"), leaderboardSkin.getDrawable("leaderboard_down"));
+        leaderboardButton.setBounds(0, 0, 70, 98);
+        leaderboardButton.setPosition(150, 100);
+        stage.addActor(leaderboardButton);
+
+        achievementSkin = new Skin();
+        achievementSkin.add("achievement_up", new Texture("achievements_button_0.png"));
+        achievementSkin.add("achievement_down", new Texture("achievements_button_1.png"));
+
+        final Button achievementButton = new Button(achievementSkin.getDrawable("achievement_up"), achievementSkin.getDrawable("achievement_down"));
+        achievementButton.setBounds(0, 0, 70, 98);
+        achievementButton.setPosition(viewport.getWorldWidth()-(150+70), 100);
+        stage.addActor(achievementButton);
+
         //BUTTONS INPUT
         playButton.addListener(new ChangeListener() {
             @Override
@@ -105,6 +130,103 @@ class MenuScreen implements Screen {
                 game.setScreen(new SettingsScreen(game));
             }
         });
+        leaderboardButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
+                CykaGame.playServices.showScore();
+            }
+        });
+        achievementButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                sounds.buttonClickSound.play(volume);
+                CykaGame.playServices.showAchievement();
+            }
+        });
+
+        if(!CykaGame.prefs.getBoolean("gender_is_set", false)) {
+            //GENDER
+            Skin uiSkin = new Skin(Gdx.files.internal("uiskin.json"));
+
+            Label label = new Label("", uiSkin);
+
+            Skin genderSkin = new Skin();
+            genderSkin.add("text", new Texture("please_set_your_gender.png"));
+            genderSkin.add("male_up", new Texture("male_0.png"));
+            genderSkin.add("male_down", new Texture("male_1.png"));
+            genderSkin.add("female_up", new Texture("female_0.png"));
+            genderSkin.add("female_down", new Texture("female_1.png"));
+            genderSkin.add("apache_up", new Texture("apache_helicopter_0.png"));
+            genderSkin.add("apache_down", new Texture("apache_helicopter_1.png"));
+
+            Button button = new Button(genderSkin.getDrawable("text"));
+            button.setBounds(0, 0, 600, 45);
+            button.setPosition(25, 40);
+
+            final Dialog dialog = new Dialog("", uiSkin, "dialog");
+
+            dialog.padTop(50).setHeight(120f);
+            dialog.getContentTable().add(label).width(viewport.getWorldWidth()).height(100f).row();
+            dialog.getContentTable().addActor(button);
+            dialog.getButtonTable().padTop(25).padBottom(300).setHeight(120f);
+            dialog.getButtonTable().row();
+
+
+
+            Button buttonM = new Button(genderSkin.getDrawable("male_up"), genderSkin.getDrawable("male_down"));
+            buttonM.setBounds(0, 0, 162, 84);
+            buttonM.setPosition(-285, 250);
+
+            buttonM.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    game.share.genderResult();
+                    dialog.hide();
+                }
+            });
+
+            dialog.getButtonTable().addActor(buttonM);
+            dialog.getButtonTable().row();
+
+            Button buttonF = new Button(genderSkin.getDrawable("female_up"), genderSkin.getDrawable("female_down"));
+            buttonF.setBounds(0, 0, 222, 84);
+            buttonF.setPosition(-285, 150);
+
+            buttonF.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    game.share.genderResult();
+                    dialog.hide();
+                }
+            });
+
+            dialog.getButtonTable().addActor(buttonF);
+            dialog.getButtonTable().row();
+
+            Button buttonA = new Button(genderSkin.getDrawable("apache_up"), genderSkin.getDrawable("apache_down"));
+            buttonA.setBounds(0, 0, 570, 84);
+            buttonA.setPosition(-285, 50);
+
+            buttonA.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    game.share.genderResult();
+                    dialog.hide();
+                }
+            });
+
+            dialog.getButtonTable().addActor(buttonA);
+            dialog.getButtonTable().row();
+
+            dialog.invalidateHierarchy();
+            dialog.invalidate();
+            dialog.layout();
+            dialog.show(stage);
+
+            CykaGame.prefs.putBoolean("gender_is_set", true);
+            CykaGame.prefs.flush();
+        }
     }
 
     @Override
@@ -148,6 +270,7 @@ class MenuScreen implements Screen {
         playSkin.dispose();
         shopSkin.dispose();
         settingsSkin.dispose();
-        settingsSkin.dispose();
+        leaderboardSkin.dispose();
+        achievementSkin.dispose();
     }
 }
