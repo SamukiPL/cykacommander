@@ -195,6 +195,11 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	}
 
 	@Override
+	public void onBackPressed() {
+		System.exit(0);
+	}
+
+	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 

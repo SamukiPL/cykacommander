@@ -7,10 +7,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -25,10 +27,13 @@ class DeathScreen implements Screen {
     //BACKGROUND
     private Texture background;
     private Animation numbersFrames;
+    private Texture playAgain;
+    private boolean startGame;
 
     private final int points = GameScreen.points;
     private int bestScore = CykaGame.prefs.getInteger("best-score", 0);
     //NUMBERS
+    private Timer numbersRunning;
     private static TextureRegion hundredths;
     private static TextureRegion tens;
     private static TextureRegion ones;
@@ -61,33 +66,6 @@ class DeathScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         //BACKGROUND
         background = new Texture("death_screen/background.png");
-        //PLAY AGAIN
-        Skin playAgainSkin = new Skin();
-        playAgainSkin.add("play_again_up", new Texture("play_button_0.png"));
-        playAgainSkin.add("play_again_down", new Texture("play_button_1.png"));
-
-        final Button playAgainButton = new Button(playAgainSkin.getDrawable("play_again_up"), playAgainSkin.getDrawable("play_again_down"));
-        playAgainButton.setBounds(0, 0, 300, 140);
-        playAgainButton.setPosition(viewport.getWorldWidth()/2-playAgainButton.getWidth()/2,450);
-        stage.addActor(playAgainButton);
-        //MENU
-        Skin menuSkin = new Skin();
-        menuSkin.add("menu_up", new Texture("menu_button_0.png"));
-        menuSkin.add("menu_down", new Texture("menu_button_1.png"));
-
-        final Button menuButton = new Button(menuSkin.getDrawable("menu_up"), menuSkin.getDrawable("menu_down"));
-        menuButton.setBounds(0, 0, 300, 140);
-        menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,300);
-        stage.addActor(menuButton);
-        //SHARE
-        Skin shareSkin = new Skin();
-        shareSkin.add("share_up", new Texture("share_button_0.png"));
-        shareSkin.add("share_down", new Texture("share_button_1.png"));
-
-        final Button shareButton = new Button(shareSkin.getDrawable("share_up"), shareSkin.getDrawable("share_down"));
-        shareButton.setBounds(0, 0, 340, 140);
-        shareButton.setPosition(viewport.getWorldWidth()/2-shareButton.getWidth()/2,150);
-        stage.addActor(shareButton);
         //PREFERENCES / SCORE
         numbersFrames = GameBasic.spriteCutting("death_screen/numbers_death.png", 5, 2);
         //CONTROLS OFF
@@ -95,7 +73,8 @@ class DeathScreen implements Screen {
             CykaGame.prefs.putBoolean("controls_on", false);
         CykaGame.prefs.putInteger("plays_counter", CykaGame.prefs.getInteger("plays_counter", 1)+1);
         CykaGame.prefs.flush();
-
+        //POINTS
+        numbersRunning = new Timer();
         setGameScore(points);
 
         int isBest = 0;
@@ -126,13 +105,56 @@ class DeathScreen implements Screen {
             CykaGame.playServices.unlockAchievement(bestScore, CykaGame.prefs.getInteger("plays_counter"));
             CykaGame.playServices.submitScore(bestScore);
         }
+        //PLAY AGAIN
+        startGame = false;
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                startGame = true;
+            }
+        },(0.5f/points)*points);
+        playAgain = new Texture("death_screen/tap_again.png");
+
+        final Actor playAgainButton = new Actor();
+        playAgainButton.setBounds(0, 0, 640, 1024);
+        playAgainButton.setPosition(0,0);
+        stage.addActor(playAgainButton);
+        //MENU
+        Skin menuSkin = new Skin();
+        menuSkin.add("menu_up", new Texture("menu_button_0.png"));
+        menuSkin.add("menu_down", new Texture("menu_button_1.png"));
+
+        final Button menuButton = new Button(menuSkin.getDrawable("menu_up"), menuSkin.getDrawable("menu_down"));
+        menuButton.setBounds(0, 0, 300, 140);
+        menuButton.setPosition(viewport.getWorldWidth()/2-menuButton.getWidth()/2,296);
+        stage.addActor(menuButton);
+        //SHARE
+        Skin shareSkin = new Skin();
+        shareSkin.add("share_up", new Texture("share_button_0.png"));
+        shareSkin.add("share_down", new Texture("share_button_1.png"));
+
+        final Button shareButton = new Button(shareSkin.getDrawable("share_up"), shareSkin.getDrawable("share_down"));
+        shareButton.setBounds(0, 0, 340, 140);
+        shareButton.setPosition(viewport.getWorldWidth()/2-shareButton.getWidth()/2,146);
+        stage.addActor(shareButton);
 
         //BUTTONS INPUT
-        playAgainButton.addListener(new ChangeListener() {
+        playAgainButton.addListener(new ClickListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void clicked(InputEvent event, float x, float y) {
                 sounds.buttonClickSound.play(volume);
-                game.setScreen(new GameScreen(game));
+                if(startGame)
+                    game.setScreen(new GameScreen(game));
+                else {
+                    int a = points / 100;
+                    int b = (points - (a * 100)) / 10;
+                    int c = points - ((a * 100) +(b * 10));
+                    hundredths = numbersFrames.getKeyFrame(a, true);
+                    tens = numbersFrames.getKeyFrame(b, true);
+                    ones = numbersFrames.getKeyFrame(c, true);
+                    numbersRunning.clear();
+                    startGame = true;
+                }
             }
         });
         menuButton.addListener(new ChangeListener() {
@@ -160,6 +182,8 @@ class DeathScreen implements Screen {
         game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
         drawScore(points);
         drawBestScore(bestScore);
+        if(startGame)
+            game.batch.draw(playAgain, viewport.getWorldWidth()/2 - 445/2, 453, 445, 35);
         game.batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
@@ -189,6 +213,11 @@ class DeathScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+        background.dispose();
+        playAgain.dispose();
+        sounds.dispose();
+        bestScoreText.dispose();
+        coin.dispose();
     }
 
     private void setBestScore(int points) {
@@ -200,7 +229,7 @@ class DeathScreen implements Screen {
         bestOnes = numbersFrames.getKeyFrame(onesPlace, true);
     }
     private void setGameScore(final int points) {
-        Timer.schedule(new Timer.Task(){
+        numbersRunning.schedule(new Timer.Task(){
             int count = 0;
                            @Override
                            public void run() {
@@ -221,29 +250,29 @@ class DeathScreen implements Screen {
 
     private void drawScore(int points) {
         if(points <= 99) {
-            game.batch.draw(tens, 150, 714, 120, 240);
-            game.batch.draw(ones, 270, 714, 120, 240);
-            game.batch.draw(coin, 400, 770, 128, 128);
+            game.batch.draw(tens, 150, 600, 120, 240);
+            game.batch.draw(ones, 270, 600, 120, 240);
+            game.batch.draw(coin, 400, 656, 128, 128);
         }
         else {
             game.batch.draw(hundredths, 76, 714, 120, 240);
-            game.batch.draw(tens, 196, 714, 120, 240);
-            game.batch.draw(ones, 316, 714, 120, 240);
-            game.batch.draw(coin, 466, 770, 128, 128);
+            game.batch.draw(tens, 196, 600, 120, 240);
+            game.batch.draw(ones, 316, 600, 120, 240);
+            game.batch.draw(coin, 466, 656, 128, 128);
         }
     }
 
     private void drawBestScore(int bestScore) {
         if(bestScore <= 99) {
-            game.batch.draw(bestScoreText, 180, 615, 180, 85);
-            game.batch.draw(bestTens, 380, 615, 48, 84);
-            game.batch.draw(bestOnes, 428, 615, 48, 84);
+            game.batch.draw(bestScoreText, 180, 501, 180, 85);
+            game.batch.draw(bestTens, 380, 501, 48, 84);
+            game.batch.draw(bestOnes, 428, 501, 48, 84);
         }
         else {
-            game.batch.draw(bestScoreText, 158, 615, 180, 85);
-            game.batch.draw(bestHundredths, 358, 615, 48, 84);
-            game.batch.draw(bestTens, 406, 615, 48, 84);
-            game.batch.draw(bestOnes, 454, 615, 48, 84);
+            game.batch.draw(bestScoreText, 158, 501, 180, 85);
+            game.batch.draw(bestHundredths, 358, 501, 48, 84);
+            game.batch.draw(bestTens, 406, 501, 48, 84);
+            game.batch.draw(bestOnes, 454, 501, 48, 84);
 
         }
     }

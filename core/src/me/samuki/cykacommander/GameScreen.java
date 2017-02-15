@@ -275,9 +275,6 @@ class GameScreen implements Screen {
         // 2 = RIGHT JOYSTICK
         //Zmniejszyć jousticki
         if(whichControls == 0) {
-            shotControl.setPosition(0,288);
-            shotControl.setSize(640,774);
-
             leftControl = new Actor();
             leftControl.setPosition(0,0);
             leftControl.setSize(320,288);
@@ -287,6 +284,9 @@ class GameScreen implements Screen {
             rightControl.setPosition(320,0);
             rightControl.setSize(321,288);
             stage.addActor(rightControl);
+
+            shotControl.setPosition(220,0);
+            shotControl.setSize(200,288);
         }
         else if(whichControls == 1) {
             shotControl.setPosition(360, 0);
@@ -367,14 +367,16 @@ class GameScreen implements Screen {
 
     private void controlsDraw() {
         //CONTROLS COLOR...
-            Color color = game.batch.getColor();
-            float oldAlpha = color.a;
-            color.a = 0.2f;
-            game.batch.setColor(color);
-            game.batch.draw(joystickTexture, leftControl.getX()+15, leftControl.getY()+15, leftControl.getWidth()+rightControl.getWidth()-15, 288-15);
-            game.batch.draw(shotButtonTexture, shotControl.getX()+15, shotControl.getY()+15, shotControl.getWidth()-15, shotControl.getHeight()-15);
-            color.a = oldAlpha;
-            game.batch.setColor(color);
+        Color color = game.batch.getColor();
+        float oldAlpha = color.a;
+        color.a = 0.2f;
+        game.batch.setColor(color);
+        game.batch.draw(joystickTexture, leftControl.getX(), leftControl.getY()+15, leftControl.getWidth()+rightControl.getWidth(), 288-15);
+        color.a = 0.6f;
+        game.batch.setColor(color);
+        game.batch.draw(shotButtonTexture, shotControl.getX()+15, shotControl.getY()+15, shotControl.getWidth()-15, shotControl.getHeight()-15);
+        color.a = oldAlpha;
+        game.batch.setColor(color);
     }
 
     private void planetLogic() {

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_id" translatable="false">153852135623</string>
+    <string name="package_name" translatable="false">me.samuki.cykacommander</string>
+    <string name="achievement_10_points_or_more" translatable="false">CgkIx5G1kr0EEAIQAQ</string>
+    <string name="achievement_20_points_or_more" translatable="false">CgkIx5G1kr0EEAIQAg</string>
+    <string name="achievement_30_points_or_more" translatable="false">CgkIx5G1kr0EEAIQAw</string>
+    <string name="achievement_40_points_or_more" translatable="false">CgkIx5G1kr0EEAIQBA</string>
+    <string name="achievement_50_points_or_more" translatable="false">CgkIx5G1kr0EEAIQBw</string>
+    <string name="achievement_75_points_or_more" translatable="false">CgkIx5G1kr0EEAIQCA</string>
+    <string name="achievement_100_points_or_more" translatable="false">CgkIx5G1kr0EEAIQCQ</string>
+    <string name="achievement_first_game_thank_you" translatable="false">CgkIx5G1kr0EEAIQBQ</string>
+    <string name="achievement_play_10_games" translatable="false">CgkIx5G1kr0EEAIQCg</string>
+    <string name="achievement_play_100_games" translatable="false">CgkIx5G1kr0EEAIQCw</string>
+    <string name="achievement_play_250_games" translatable="false">CgkIx5G1kr0EEAIQDA</string>
+    <string name="achievement_play_500_games" translatable="false">CgkIx5G1kr0EEAIQDQ</string>
+    <string name="achievement_play_1000_games" translatable="false">CgkIx5G1kr0EEAIQDg</string>
+    <string name="achievement_play_2500_games" translatable="false">CgkIx5G1kr0EEAIQDw</string>
+    <string name="leaderboard_best_score_from_all_around_the_world" translatable="false">CgkIx5G1kr0EEAIQBg</string>
+</resources>

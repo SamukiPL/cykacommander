@@ -1,0 +1,51 @@
+{
+  "project_info": {
+    "project_number": "153852135623",
+    "firebase_url": "https://cykacommander-89290830.firebaseio.com",
+    "project_id": "cykacommander-89290830",
+    "storage_bucket": "cykacommander-89290830.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:153852135623:android:8c0aaf4aedda1095",
+        "android_client_info": {
+          "package_name": "me.samuki.cykacommander"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "153852135623-fhesqc54o2d9rqh7hc3bn2gks0iiufk0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "me.samuki.cykacommander",
+            "certificate_hash": "3927DBCB64CBA9FBA69C24206B01C152C9E95D6A"
+          }
+        },
+        {
+          "client_id": "153852135623-8lq1jipum37rapt1nmsq4eguo5c8huvc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [{ "current_key": "" }],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "153852135623-8lq1jipum37rapt1nmsq4eguo5c8huvc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
