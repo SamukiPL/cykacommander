@@ -5,7 +5,7 @@ buildscript {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.google.gms:google-services:3.0.0'
     }
 }
@@ -46,8 +46,8 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-        compile 'com.google.android.gms:play-services-ads:10.0.1'
-        compile ('com.google.android.gms:play-services-games:10.0.1') {
+        compile 'com.google.android.gms:play-services-ads:11.0.2'
+        compile ('com.google.android.gms:play-services-games:11.0.2') {
             exclude group: 'com.android.support', module: 'support-v4'
         }
         compile project(':BaseGameUtils')

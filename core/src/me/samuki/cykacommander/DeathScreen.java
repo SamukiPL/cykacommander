@@ -30,7 +30,10 @@ class DeathScreen implements Screen {
     private Texture playAgain;
     private boolean startGame;
 
-    private final int points = GameScreen.points;
+    private int playsCounter = CykaGame.prefs.getInteger("plays_counter", 1);
+    private final int SHOW_AD_EVERY = 15;
+
+    private final int POINTS = GameScreen.points;
     private int bestScore = CykaGame.prefs.getInteger("best-score", 0);
     //NUMBERS
     private Timer numbersRunning;
@@ -69,19 +72,24 @@ class DeathScreen implements Screen {
         //PREFERENCES / SCORE
         numbersFrames = GameBasic.spriteCutting("death_screen/numbers_death.png", 5, 2);
         //CONTROLS OFF
-        if(CykaGame.prefs.getInteger("plays_counter", 1) == 1)
+        if(playsCounter == 1)
             CykaGame.prefs.putBoolean("controls_on", false);
-        CykaGame.prefs.putInteger("plays_counter", CykaGame.prefs.getInteger("plays_counter", 1)+1);
+        if(playsCounter % SHOW_AD_EVERY == 1)
+            game.share.showInterstitialAd();
+        else
+            game.share.loadInterstitialAd();
+        //SAVING PLAYS COUNTER
+        CykaGame.prefs.putInteger("plays_counter", ++playsCounter);
         CykaGame.prefs.flush();
         //POINTS
         numbersRunning = new Timer();
-        setGameScore(points);
+        setGameScore(POINTS);
 
         int isBest = 0;
 
-        if(points > bestScore) {
-            CykaGame.prefs.putInteger("best-score", points);
-            bestScore = points;
+        if(POINTS > bestScore) {
+            CykaGame.prefs.putInteger("best-score", POINTS);
+            bestScore = POINTS;
             CykaGame.prefs.flush();
             isBest = 1;
         }
@@ -89,15 +97,15 @@ class DeathScreen implements Screen {
         setBestScore(bestScore);
         //COINS
         int coinNumber = 0;
-        if(points < 10)
+        if(POINTS < 10)
             coinNumber = 0;
-        else if (points < 20)
+        else if (POINTS < 20)
             coinNumber = 1;
-        else if (points < 30)
+        else if (POINTS < 30)
             coinNumber = 2;
-        else if (points < 40)
+        else if (POINTS < 40)
             coinNumber = 3;
-        else if (points < 50)
+        else if (POINTS < 50)
             coinNumber = 4;
         coin = new Texture("death_screen/coin_"+coinNumber+".png");
 
@@ -112,7 +120,7 @@ class DeathScreen implements Screen {
             public void run() {
                 startGame = true;
             }
-        },(0.5f/points)*points);
+        },(0.5f/ POINTS)* POINTS);
         playAgain = new Texture("death_screen/tap_again.png");
 
         final Actor playAgainButton = new Actor();
@@ -146,9 +154,9 @@ class DeathScreen implements Screen {
                 if(startGame)
                     game.setScreen(new GameScreen(game));
                 else {
-                    int a = points / 100;
-                    int b = (points - (a * 100)) / 10;
-                    int c = points - ((a * 100) +(b * 10));
+                    int a = POINTS / 100;
+                    int b = (POINTS - (a * 100)) / 10;
+                    int c = POINTS - ((a * 100) +(b * 10));
                     hundredths = numbersFrames.getKeyFrame(a, true);
                     tens = numbersFrames.getKeyFrame(b, true);
                     ones = numbersFrames.getKeyFrame(c, true);
@@ -168,7 +176,7 @@ class DeathScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 sounds.buttonClickSound.play(volume);
-                game.share.shareScore(points);
+                game.share.shareScore(POINTS);
             }
         });
     }
@@ -180,7 +188,7 @@ class DeathScreen implements Screen {
 
         game.batch.begin();
         game.batch.draw(background, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        drawScore(points);
+        drawScore(POINTS);
         drawBestScore(bestScore);
         if(startGame)
             game.batch.draw(playAgain, viewport.getWorldWidth()/2 - 445/2, 453, 445, 35);

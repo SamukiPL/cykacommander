@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">CykaCommander</string>
+    <string name="app_name">Cyka Commander</string>
     <string name="share_1">Look, I\'ve got </string>
     <plurals name="share_2">
         <item quantity="one"> point in CykaCommander!</item>

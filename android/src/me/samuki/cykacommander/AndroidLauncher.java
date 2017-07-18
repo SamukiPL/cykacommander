@@ -19,16 +19,26 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.reward.RewardItem;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
+import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.GameHelper;
 
 public class AndroidLauncher extends AndroidApplication implements ShareAction, PlayServices {
-	final String AD_UNIT_ID = "";
+	final String AD_UNIT_ID_BANNER = "";
+	final String AD_UNIT_ID_INTERSTITIAL = "";
+    final String AD_UNIT_ID_REWARDED = "";
 
 	private GameHelper gameHelper;
 	private final static int requestCode = 1;
 
 	AdView adView;
+	private InterstitialAd interstitialAd;
+    boolean isInterstitialLoaded;
+    private RewardedVideoAd rewardedAd;
 
 	RelativeLayout.LayoutParams paramsGame;
 	RelativeLayout.LayoutParams paramsAds;
@@ -124,6 +134,63 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 				adView.setLayoutParams(paramsAds);
 			}
 		});
+		//INTERSTITIAL AD
+		interstitialAd = new InterstitialAd(this);
+		interstitialAd.setAdUnitId(AD_UNIT_ID_INTERSTITIAL);
+		interstitialAd.setAdListener(new AdListener() {
+			@Override
+			public void onAdLoaded() {
+				Toast.makeText(getApplicationContext(), "Finished Loading", Toast.LENGTH_SHORT).show();
+				super.onAdLoaded();
+			}
+
+			@Override
+			public void onAdClosed() {
+				Toast.makeText(getApplicationContext(), "Finished Loading", Toast.LENGTH_SHORT).show();
+				super.onAdClosed();
+			}
+		});
+        loadInterstitialAd();
+        //REWARDED AD
+        rewardedAd = MobileAds.getRewardedVideoAdInstance(this);
+        rewardedAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
+            @Override
+            public void onRewardedVideoAdLoaded() {
+                Toast.makeText(AndroidLauncher.this, "Rewarded loading", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRewardedVideoAdOpened() {
+
+            }
+
+            @Override
+            public void onRewardedVideoStarted() {
+
+            }
+
+            @Override
+            public void onRewardedVideoAdClosed() {
+
+            }
+
+            @Override
+            public void onRewarded(RewardItem rewardItem) {
+
+            }
+
+            @Override
+            public void onRewardedVideoAdLeftApplication() {
+
+            }
+
+            @Override
+            public void onRewardedVideoAdFailedToLoad(int i) {
+
+            }
+        });
+        rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder().build());
+
 	}
 
 	@Override
@@ -147,11 +214,58 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 		gameHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
-	public void setupAds() {
+    @Override
+    public void showRewardedAd() {
+        System.out.println("DOSTAN WINCYJ!!!");
+        //rewardedAd.show();
+    }
+
+    @Override
+    public void loadInterstitialAd() {
+        try {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(!interstitialAd.isLoaded()) {
+                        AdRequest interstitialRequest = new AdRequest.Builder().build();
+                        interstitialAd.loadAd(interstitialRequest);
+                        Toast.makeText(AndroidLauncher.this, "Loading Ad", Toast.LENGTH_SHORT).show();
+                        isInterstitialLoaded = true;
+                    }
+                }
+            });
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    @Override
+    public void showInterstitialAd() {
+        try {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(interstitialAd.isLoaded()) {
+                        interstitialAd.show();
+                        Toast.makeText(AndroidLauncher.this, "Showing Ad", Toast.LENGTH_SHORT).show();
+                        isInterstitialLoaded = false;
+                    }
+                    else {
+                        loadInterstitialAd();
+                    }
+                }
+            });
+        } catch (Exception ignored) {
+
+        }
+
+    }
+
+    public void setupAds() {
 		adView = new AdView(this);
 		adView.setVisibility(View.VISIBLE);
 		adView.setBackgroundColor(0xff000000); //d7d7d7
-		adView.setAdUnitId(AD_UNIT_ID);
+		adView.setAdUnitId(AD_UNIT_ID_BANNER);
 		adView.setAdSize(AdSize.SMART_BANNER);
 	}
 
@@ -176,6 +290,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	@Override
 	public void onResume() {
 		super.onResume();
+        rewardedAd.resume(this);
 		hideSystemUI();
 		if (adView != null) adView.resume();
 	}
@@ -183,6 +298,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	@Override
 	public void onPause() {
 		hideSystemUI();
+        rewardedAd.pause(this);
 		if (adView != null) adView.pause();
 		super.onPause();
 	}
@@ -190,6 +306,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	@Override
 	public void onDestroy() {
 		hideSystemUI();
+        rewardedAd.destroy(this);
 		if (adView != null) adView.destroy();
 		super.onDestroy();
 	}

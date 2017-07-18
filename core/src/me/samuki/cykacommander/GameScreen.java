@@ -273,8 +273,50 @@ class GameScreen implements Screen {
         // 0 = CLASSIC
         // 1 = LEFT JOYSTICK
         // 2 = RIGHT JOYSTICK
-        //Zmniejszyć jousticki
+        // 3 = CENTER
         if(whichControls == 0) {
+            shotControl.setPosition(0,288);
+            shotControl.setSize(640,774);
+
+            leftControl = new Actor();
+            leftControl.setPosition(0,0);
+            leftControl.setSize(320,288);
+            stage.addActor(leftControl);
+
+            rightControl = new Actor();
+            rightControl.setPosition(320,0);
+            rightControl.setSize(321,288);
+            stage.addActor(rightControl);
+        }
+        else if(whichControls == 1) {
+            shotControl.setPosition(360, 0);
+            shotControl.setSize(280, 280);
+
+            leftControl = new Actor();
+            leftControl.setPosition(0,0);
+            leftControl.setSize(160,300);
+            stage.addActor(leftControl);
+
+            rightControl = new Actor();
+            rightControl.setPosition(160,0);
+            rightControl.setSize(160,300);
+            stage.addActor(rightControl);
+        }
+        else if(whichControls == 2) {
+            shotControl.setPosition(0, 0);
+            shotControl.setSize(280, 280);
+
+            leftControl = new Actor();
+            leftControl.setPosition(320,0);
+            leftControl.setSize(160,30);
+            stage.addActor(leftControl);
+
+            rightControl = new Actor();
+            rightControl.setPosition(480,0);
+            rightControl.setSize(160,300);
+            stage.addActor(rightControl);
+        }
+        else if(whichControls == 3) {
             leftControl = new Actor();
             leftControl.setPosition(0,0);
             leftControl.setSize(320,288);
@@ -285,36 +327,8 @@ class GameScreen implements Screen {
             rightControl.setSize(321,288);
             stage.addActor(rightControl);
 
-            shotControl.setPosition(220,0);
-            shotControl.setSize(200,288);
-        }
-        else if(whichControls == 1) {
-            shotControl.setPosition(360, 0);
-            shotControl.setSize(280, 280);
-
-            leftControl = new Actor();
-            leftControl.setPosition(0,0);
-            leftControl.setSize(137,288);
-            stage.addActor(leftControl);
-
-            rightControl = new Actor();
-            rightControl.setPosition(137,0);
-            rightControl.setSize(137,288);
-            stage.addActor(rightControl);
-        }
-        else if(whichControls == 2) {
-            shotControl.setPosition(0, 0);
-            shotControl.setSize(280, 280);
-
-            leftControl = new Actor();
-            leftControl.setPosition(366,0);
-            leftControl.setSize(137,288);
-            stage.addActor(leftControl);
-
-            rightControl = new Actor();
-            rightControl.setPosition(503,0);
-            rightControl.setSize(137,288);
-            stage.addActor(rightControl);
+            shotControl.setPosition(220,44);
+            shotControl.setSize(200,200);
         }
 
         rightControl.addListener(new InputListener() {
@@ -369,12 +383,12 @@ class GameScreen implements Screen {
         //CONTROLS COLOR...
         Color color = game.batch.getColor();
         float oldAlpha = color.a;
-        color.a = 0.2f;
+        color.a = 0.4f;
         game.batch.setColor(color);
-        game.batch.draw(joystickTexture, leftControl.getX(), leftControl.getY()+15, leftControl.getWidth()+rightControl.getWidth(), 288-15);
+        game.batch.draw(joystickTexture, leftControl.getX(), leftControl.getY() + 15, leftControl.getWidth()+rightControl.getWidth(), 288 - 15);
         color.a = 0.6f;
         game.batch.setColor(color);
-        game.batch.draw(shotButtonTexture, shotControl.getX()+15, shotControl.getY()+15, shotControl.getWidth()-15, shotControl.getHeight()-15);
+        game.batch.draw(shotButtonTexture, shotControl.getX() + 45, shotControl.getY() + 45, shotControl.getWidth() - 90, shotControl.getHeight() - 90);
         color.a = oldAlpha;
         game.batch.setColor(color);
     }

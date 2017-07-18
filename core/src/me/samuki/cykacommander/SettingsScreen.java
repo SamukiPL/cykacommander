@@ -16,6 +16,11 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 
 class SettingsScreen implements Screen {
+    private final int CONTROL_TEXT_COLS = 1;
+    private final int CONTROL_TEXT_ROWS = 4;
+    private final int CONTROL_ILLUSTRATION_COLS = 2;
+    private final int CONTROL_ILLUSTRATION_ROWS = 2;
+
     private CykaGame game;
     private Stage stage;
     private FitViewport viewport;
@@ -33,6 +38,10 @@ class SettingsScreen implements Screen {
     private Texture controlsText;
     private Animation whichControlFrame;
     private TextureRegion whichControl;
+    //OPTIONS ILLUSTRATION
+    private  Animation whichControlIllustration;
+    private TextureRegion whichIllustration;
+
 
     SettingsScreen(CykaGame game) {
         this.game = game;
@@ -104,8 +113,11 @@ class SettingsScreen implements Screen {
         //OPTIONS TEXT
         soundText = new Texture("settings_screen/sound_text.png");
         controlsText = new Texture("settings_screen/controls_text.png");
-        whichControlFrame = GameBasic.spriteCutting("settings_screen/which_control.png", 1, 3);
+        whichControlFrame = GameBasic.spriteCutting("settings_screen/which_control.png", CONTROL_TEXT_COLS, CONTROL_TEXT_ROWS);
         whichControl = whichControlFrame.getKeyFrame(setControl);
+        //CONTROLS ILLUSTRATION
+        whichControlIllustration = GameBasic.spriteCutting("settings_screen/control_illustration.png", CONTROL_ILLUSTRATION_COLS, CONTROL_ILLUSTRATION_ROWS);
+        whichIllustration = whichControlIllustration.getKeyFrame(setControl);
 
         buttonSound.addListener(new ChangeListener() {
             @Override
@@ -131,7 +143,7 @@ class SettingsScreen implements Screen {
                 sounds.buttonClickSound.play(volume);
                 switch (setControl) {
                     case 0:
-                        setControl = 2;
+                        setControl = 3;
                         break;
                     case 1:
                         setControl = 0;
@@ -139,8 +151,11 @@ class SettingsScreen implements Screen {
                     case 2:
                         setControl = 1;
                         break;
+                    case 3:
+                        setControl = 2;
+                        break;
                 }
-                whichControl = whichControlFrame.getKeyFrame(setControl);
+                setWhichControl();
                 CykaGame.prefs.putInteger("which_control", setControl);
                 CykaGame.prefs.flush();
             }
@@ -157,10 +172,13 @@ class SettingsScreen implements Screen {
                         setControl = 2;
                         break;
                     case 2:
+                        setControl = 3;
+                        break;
+                    case 3:
                         setControl = 0;
                         break;
                 }
-                whichControl = whichControlFrame.getKeyFrame(setControl);
+                setWhichControl();
                 CykaGame.prefs.putInteger("which_control", setControl);
                 CykaGame.prefs.flush();
             }
@@ -173,6 +191,10 @@ class SettingsScreen implements Screen {
             }
         });
     }
+    void setWhichControl() {
+        whichControl = whichControlFrame.getKeyFrame(setControl);
+        whichIllustration = whichControlIllustration.getKeyFrame(setControl);
+    }
 
     @Override
     public void render(float delta) {
@@ -184,6 +206,7 @@ class SettingsScreen implements Screen {
         game.batch.draw(soundText, 100, 700, 310, 90);
         game.batch.draw(controlsText, 50, 559, 384, 72);
         game.batch.draw(whichControl, 117.5f, 404, 405, 81);
+        game.batch.draw(whichIllustration, viewport.getWorldWidth()/2 - 100, 50, 200, 320);
         game.batch.end();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1/30f));
         stage.draw();

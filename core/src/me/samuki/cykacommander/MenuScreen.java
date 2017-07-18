@@ -41,6 +41,8 @@ class MenuScreen implements Screen {
 
     @Override
     public void show() {
+        //SET ADS
+        game.share.loadInterstitialAd();
         //SOUNDS
         sounds = new SoundsBase(1);
 
