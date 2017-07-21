@@ -46,8 +46,8 @@ class ShopScreen implements Screen {
     private TextureRegion[] priceText;
     private Texture[] shopItems;
     private ImageButton[] shopButtons;
-    private int[] prices = {0, 25, 25, 50, 50, 50, 75, 75, 100, 125, 150, 175, 200, 225, 250, 500, 750, 1000, 1250, 1500};
-    private int[] shipPrice = {0, 1, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    private int[] prices = {0, 10, 10, 10, 10, 10, 10, 10, 25, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 500};
+    private int[] shipPrice = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 
     ShopScreen(CykaGame game) {
         this.game = game;

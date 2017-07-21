@@ -13,5 +13,6 @@
     <string name="exception">No programs found :(</string>
 
     <string name="gender_result">I don\'t care anyway.</string>
+    <string name="youAlreadyGetThis">You already get this reward today!</string>
 
 </resources>

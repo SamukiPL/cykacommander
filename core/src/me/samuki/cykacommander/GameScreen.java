@@ -308,7 +308,7 @@ class GameScreen implements Screen {
 
             leftControl = new Actor();
             leftControl.setPosition(320,0);
-            leftControl.setSize(160,30);
+            leftControl.setSize(160,300);
             stage.addActor(leftControl);
 
             rightControl = new Actor();

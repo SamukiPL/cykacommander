@@ -26,6 +26,7 @@ class CykaGame extends Game implements ApplicationListener {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
 		prefs = Gdx.app.getPreferences("game-prefs");
+		GameBasic.adIsReady = false;
 
 		this.setScreen(new CykaSplashScreen(this));
 	}

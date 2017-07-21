@@ -25,6 +25,8 @@ class GameBasic {
     private static final int NUMBERS_ROWS = 2;
     private static Animation numbersAnimation;
     private Texture hudPoints;
+    //REWARDED AD IS READY
+    static boolean adIsReady;
 
     void loadSprites() {
         //SHIP ANIMATION

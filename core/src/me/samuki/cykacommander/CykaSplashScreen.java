@@ -42,7 +42,10 @@ class CykaSplashScreen implements Screen {
 
         startTime = TimeUtils.millis();
 
-        appLogoAnimation = GameBasic.spriteCutting("splash_screen_logo.png", 3, 3);
+        final int ANIMATION_COLS = 1;
+        final int ANIMATION_ROWS = 5;
+        appLogoAnimation = GameBasic.spriteCutting("splash_screen_logo.png",
+                            ANIMATION_COLS, ANIMATION_ROWS);
         appLogo = appLogoAnimation.getKeyFrame(0);
 
         Timer timer = new Timer();
@@ -52,6 +55,8 @@ class CykaSplashScreen implements Screen {
                                 public void run() {
                                     appLogo = appLogoAnimation.getKeyFrame(a);
                                     a++;
+                                    if(a == 5)
+                                        a = 0;
                                 }
                             },
                 0f,

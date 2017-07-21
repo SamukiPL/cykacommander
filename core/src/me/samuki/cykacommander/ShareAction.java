@@ -7,5 +7,7 @@ interface ShareAction {
     void loadInterstitialAd();
     void showInterstitialAd();
     void showRewardedAd();
+    void loadRewardedAd();
+    void rewardTaken();
 
 }

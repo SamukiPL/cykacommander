@@ -27,10 +27,11 @@ import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.GameHelper;
 
-public class AndroidLauncher extends AndroidApplication implements ShareAction, PlayServices {
-	final String AD_UNIT_ID_BANNER = "";
-	final String AD_UNIT_ID_INTERSTITIAL = "";
-    final String AD_UNIT_ID_REWARDED = "";
+public class AndroidLauncher extends AndroidApplication implements ShareAction, PlayServices, RewardedVideoAdListener {
+	//Normalne zakomentowane
+	final String AD_UNIT_ID_BANNER = "ca-app-pub-3940256099942544/6300978111";
+	final String AD_UNIT_ID_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712";
+    final String AD_UNIT_ID_REWARDED = "ca-app-pub-3940256099942544/5224354917";
 
 	private GameHelper gameHelper;
 	private final static int requestCode = 1;
@@ -48,11 +49,14 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 		public void handleMessage(Message msg) {
 			String genderResult = getResources().getString(R.string.gender_result);
 			String exception = getResources().getString(R.string.exception);
+			String youAlreadyGetThis = getResources().getString(R.string.youAlreadyGetThis);
 
 			if(msg.arg1 == 1)
 				Toast.makeText(getApplicationContext(),genderResult, Toast.LENGTH_LONG).show();
 			if(msg.arg1 == 2)
 				Toast.makeText(getApplicationContext(),exception, Toast.LENGTH_LONG).show();
+			if(msg.arg1 == 3)
+				Toast.makeText(AndroidLauncher.this, youAlreadyGetThis, Toast.LENGTH_SHORT).show();
 		}
 	};
 
@@ -140,56 +144,18 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 		interstitialAd.setAdListener(new AdListener() {
 			@Override
 			public void onAdLoaded() {
-				Toast.makeText(getApplicationContext(), "Finished Loading", Toast.LENGTH_SHORT).show();
 				super.onAdLoaded();
 			}
 
 			@Override
 			public void onAdClosed() {
-				Toast.makeText(getApplicationContext(), "Finished Loading", Toast.LENGTH_SHORT).show();
 				super.onAdClosed();
 			}
 		});
         loadInterstitialAd();
         //REWARDED AD
         rewardedAd = MobileAds.getRewardedVideoAdInstance(this);
-        rewardedAd.setRewardedVideoAdListener(new RewardedVideoAdListener() {
-            @Override
-            public void onRewardedVideoAdLoaded() {
-                Toast.makeText(AndroidLauncher.this, "Rewarded loading", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onRewardedVideoAdOpened() {
-
-            }
-
-            @Override
-            public void onRewardedVideoStarted() {
-
-            }
-
-            @Override
-            public void onRewardedVideoAdClosed() {
-
-            }
-
-            @Override
-            public void onRewarded(RewardItem rewardItem) {
-
-            }
-
-            @Override
-            public void onRewardedVideoAdLeftApplication() {
-
-            }
-
-            @Override
-            public void onRewardedVideoAdFailedToLoad(int i) {
-
-            }
-        });
-        rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder().build());
+        rewardedAd.setRewardedVideoAdListener(this);
 
 	}
 
@@ -216,9 +182,31 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 
     @Override
     public void showRewardedAd() {
-        System.out.println("DOSTAN WINCYJ!!!");
-        //rewardedAd.show();
+		try {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if(rewardedAd.isLoaded()) {
+						rewardedAd.show();
+					}
+				}
+			});
+		} catch (Exception ignored) {
+
+		}
     }
+
+    @Override
+	public void loadRewardedAd() {
+		try {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder().build());
+				}
+			});
+		} catch (Exception ignored) {}
+	}
 
     @Override
     public void loadInterstitialAd() {
@@ -365,11 +353,16 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 		msg.arg1 = 1;
 		handler.sendMessage(msg);
 	}
+	@Override
+	public void rewardTaken() {
+		Message msg = handler.obtainMessage();
+		msg.arg1 = 3;
+		handler.sendMessage(msg);
+	}
 
 	//GOOGLE PLAY SERVICES
 	@Override
-	public void signIn()
-	{
+	public void signIn()	{
 		try
 		{
 			runOnUiThread(new Runnable()
@@ -388,8 +381,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	}
 
 	@Override
-	public void signOut()
-	{
+	public void signOut()	{
 		try
 		{
 			runOnUiThread(new Runnable()
@@ -408,15 +400,13 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	}
 
 	@Override
-	public void rateGame()
-	{
+	public void rateGame()	{
 		String str = "https://play.google.com/store/apps/details?id=me.samuki.cykacommander";
 		startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(str)));
 	}
 
 	@Override
-	public void unlockAchievement(int score, int gamesPlayed)
-	{
+	public void unlockAchievement(int score, int gamesPlayed)	{
 		if(score >= 10) {
 			Games.Achievements.unlock(gameHelper.getApiClient(),
 					getString(R.string.achievement_10_points_or_more));
@@ -476,8 +466,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	}
 
 	@Override
-	public void submitScore(int highScore)
-	{
+	public void submitScore(int highScore)	{
 		if (isSignedIn())
 		{
 			Games.Leaderboards.submitScore(gameHelper.getApiClient(),
@@ -486,8 +475,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	}
 
 	@Override
-	public void showAchievement()
-	{
+	public void showAchievement() {
 		if (isSignedIn())
 		{
 			startActivityForResult(Games.Achievements.getAchievementsIntent(gameHelper.getApiClient()), requestCode);
@@ -499,8 +487,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	}
 
 	@Override
-	public void showScore()
-	{
+	public void showScore()	{
 		if (isSignedIn())
 		{
 			startActivityForResult(Games.Leaderboards.getLeaderboardIntent(gameHelper.getApiClient(),
@@ -516,5 +503,43 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	public boolean isSignedIn()
 	{
 		return gameHelper.isSignedIn();
+	}
+
+	@Override
+	public void onRewarded(RewardItem rewardItem) {//MUST HAVE!!!
+		MenuScreen.giveThatReward(rewardItem.getAmount());
+	}
+
+	@Override
+	public void onRewardedVideoAdLeftApplication() {
+
+	}
+
+	@Override
+	public void onRewardedVideoAdClosed() {
+		rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder().build());
+	}
+
+	@Override
+	public void onRewardedVideoAdFailedToLoad(int errorCode) {
+		rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder().build());
+	}
+
+	@Override
+	public void onRewardedVideoAdLoaded() {
+		GameBasic.adIsReady = true;
+		try {
+			MenuScreen.giveVodka();
+		} catch (Exception ignored) {}
+	}
+
+	@Override
+	public void onRewardedVideoAdOpened() {
+
+	}
+
+	@Override
+	public void onRewardedVideoStarted() {
+
 	}
 }
