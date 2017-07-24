@@ -12,5 +12,6 @@
     <string name="send_to">Podziel się!</string>
     <string name="exception">Nie znaleziono programów :(</string>
     <string name="gender_result">I tak mnie to nie obchodzi.</string>
+    <string name="youAlreadyGetThis">Otrzymałeś już dzisiaj swoją nagrodę!</string>
 
 </resources>

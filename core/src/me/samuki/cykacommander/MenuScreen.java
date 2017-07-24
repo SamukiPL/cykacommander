@@ -425,6 +425,9 @@ class MenuScreen implements Screen {
 
     static void giveThatReward(int howMany) {
         CykaGame.prefs.putString("isToday", today);
+        if(howMany != 125)
+            howMany = 125;
+        CykaGame.prefs.putInteger("cash", CykaGame.prefs.getInteger("cash", 0) + howMany);
         CykaGame.prefs.flush();
         vodkaButton.setBounds(0, 0, 22, 48);
         vodkaButton.setPosition(vodkaX, 32);

@@ -28,10 +28,10 @@ import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.GameHelper;
 
 public class AndroidLauncher extends AndroidApplication implements ShareAction, PlayServices, RewardedVideoAdListener {
-	//Normalne zakomentowane
-	final String AD_UNIT_ID_BANNER = "ca-app-pub-3940256099942544/6300978111";
-	final String AD_UNIT_ID_INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712";
-    final String AD_UNIT_ID_REWARDED = "ca-app-pub-3940256099942544/5224354917";
+	//Testowe zakomentowane
+	final String AD_UNIT_ID_BANNER = "";//";//ca-app-pub-3940256099942544/6300978111
+	final String AD_UNIT_ID_INTERSTITIAL = "";//ca-app-pub-3940256099942544/1033173712
+    final String AD_UNIT_ID_REWARDED = "";//ca-app-pub-3940256099942544/5224354917
 
 	private GameHelper gameHelper;
 	private final static int requestCode = 1;
@@ -217,7 +217,6 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
                     if(!interstitialAd.isLoaded()) {
                         AdRequest interstitialRequest = new AdRequest.Builder().build();
                         interstitialAd.loadAd(interstitialRequest);
-                        Toast.makeText(AndroidLauncher.this, "Loading Ad", Toast.LENGTH_SHORT).show();
                         isInterstitialLoaded = true;
                     }
                 }
@@ -235,7 +234,6 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
                 public void run() {
                     if(interstitialAd.isLoaded()) {
                         interstitialAd.show();
-                        Toast.makeText(AndroidLauncher.this, "Showing Ad", Toast.LENGTH_SHORT).show();
                         isInterstitialLoaded = false;
                     }
                     else {
@@ -508,6 +506,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	@Override
 	public void onRewarded(RewardItem rewardItem) {//MUST HAVE!!!
 		MenuScreen.giveThatReward(rewardItem.getAmount());
+		System.out.println(rewardItem.getType() +":    " + rewardItem.getAmount());
 	}
 
 	@Override
