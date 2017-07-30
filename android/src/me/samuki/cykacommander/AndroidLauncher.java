@@ -29,7 +29,7 @@ import com.google.example.games.basegameutils.GameHelper;
 
 public class AndroidLauncher extends AndroidApplication implements ShareAction, PlayServices, RewardedVideoAdListener {
 	//Testowe zakomentowane
-	final String AD_UNIT_ID_BANNER = "";//";//ca-app-pub-3940256099942544/6300978111
+	final String AD_UNIT_ID_BANNER = "";//ca-app-pub-3940256099942544/6300978111
 	final String AD_UNIT_ID_INTERSTITIAL = "";//ca-app-pub-3940256099942544/1033173712
     final String AD_UNIT_ID_REWARDED = "";//ca-app-pub-3940256099942544/5224354917
 
@@ -202,7 +202,8 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder().build());
+					rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder()
+                            .addTestDevice("111799C3AA4FAD728F7A0E814E55273F").build());
 				}
 			});
 		} catch (Exception ignored) {}
@@ -215,7 +216,8 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
                 @Override
                 public void run() {
                     if(!interstitialAd.isLoaded()) {
-                        AdRequest interstitialRequest = new AdRequest.Builder().build();
+                        AdRequest interstitialRequest = new AdRequest.Builder()
+                                .addTestDevice("111799C3AA4FAD728F7A0E814E55273F").build();
                         interstitialAd.loadAd(interstitialRequest);
                         isInterstitialLoaded = true;
                     }
@@ -258,6 +260,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	private void startAdvertising(AdView adView) {
 		AdRequest adRequest = new AdRequest.Builder()
 				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .addTestDevice("111799C3AA4FAD728F7A0E814E55273F")
 				.build();
 		adView.loadAd(adRequest);
 	}
@@ -516,7 +519,8 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 
 	@Override
 	public void onRewardedVideoAdClosed() {
-		rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder().build());
+		rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder()
+                .addTestDevice("111799C3AA4FAD728F7A0E814E55273F").build());
 	}
 
 	@Override
