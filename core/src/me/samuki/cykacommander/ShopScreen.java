@@ -68,7 +68,7 @@ class ShopScreen implements Screen {
         if(whichNation.equals(""))
             return 20;
         else
-            return 6;
+            return 10;
     }
 
     @Override
@@ -98,7 +98,18 @@ class ShopScreen implements Screen {
         numbersFrames = GameBasic.spriteCutting("prices/shop_numbers.png", 5, 2);
         currency = new Texture("prices/currency.png");
 
+        //SHOP ITEMS
+        CykaGame.prefs.putBoolean("isBought_0", true); //FIRST SHIP
+        CykaGame.prefs.putBoolean("isBought_0ger", true); //FIRST SHIP
+        CykaGame.prefs.flush();
+        isBought = new boolean[amount];
+        priceText = new TextureRegion[amount];
+        shopItems = new Texture[amount];
+        shopButtons = new ImageButton[amount];
+        amount = getCurrentAmount();
+
         //PAGE CHANGE
+        setShopWidth();
         Actor actor = new Actor();
         actor.setPosition(0, 0);
         actor.setSize(640, 1024);
@@ -111,15 +122,6 @@ class ShopScreen implements Screen {
                 shopX += deltaX;
             }
         });
-
-        //SHOP ITEMS
-        CykaGame.prefs.putBoolean("isBought_0", true); //FIRST SHIP
-        CykaGame.prefs.putBoolean("isBought_0ger", true); //FIRST SHIP
-        CykaGame.prefs.flush();
-        isBought = new boolean[amount];
-        priceText = new TextureRegion[amount];
-        shopItems = new Texture[amount];
-        shopButtons = new ImageButton[amount];
         //PRICES ANIMATION
         pricesFrames = GameBasic.spriteCutting("prices/prices.png", 4, 4);
 
@@ -151,7 +153,7 @@ class ShopScreen implements Screen {
                     whichNation = "";
 
                 } else if(whichNation.equals("")) {
-                    amount = 6;
+                    amount = 10;
                     setShopWidth();
                     whichNation = "ger";
                 }
@@ -204,7 +206,6 @@ class ShopScreen implements Screen {
             });
 
             stage.addActor(adviseButton);
-            amount = getCurrentAmount();
         }
     }
 
