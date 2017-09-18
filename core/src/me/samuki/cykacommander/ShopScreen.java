@@ -68,7 +68,7 @@ class ShopScreen implements Screen {
         if(whichNation.equals(""))
             return 20;
         else
-            return 10;
+            return 12;
     }
 
     @Override
@@ -148,14 +148,14 @@ class ShopScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if(whichNation.equals("ger")) {
-                    amount = 20;
-                    setShopWidth();
                     whichNation = "";
+                    amount = getCurrentAmount();
+                    setShopWidth();
 
                 } else if(whichNation.equals("")) {
-                    amount = 10;
-                    setShopWidth();
                     whichNation = "ger";
+                    amount = getCurrentAmount();
+                    setShopWidth();
                 }
                 CykaGame.prefs.putString("nation", whichNation);
                 CykaGame.prefs.flush();
