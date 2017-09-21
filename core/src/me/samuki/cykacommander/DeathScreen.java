@@ -110,7 +110,7 @@ class DeathScreen implements Screen {
         coin = new Texture("death_screen/coin_"+coinNumber+".png");
 
         if(CykaGame.playServices.isSignedIn()) {
-            CykaGame.playServices.unlockAchievement(bestScore, CykaGame.prefs.getInteger("plays_counter"));
+            CykaGame.playServices.unlockAchievement(bestScore, CykaGame.prefs.getInteger("plays_counter"), -1, "Nothing");
             CykaGame.playServices.submitScore(bestScore);
         }
         //PLAY AGAIN

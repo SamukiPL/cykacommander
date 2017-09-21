@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -407,7 +408,7 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	}
 
 	@Override
-	public void unlockAchievement(int score, int gamesPlayed)	{
+	public void unlockAchievement(int score, int gamesPlayed, int shipUnlocked, String shipsNation)	{
 		if(score >= 10) {
 			Games.Achievements.unlock(gameHelper.getApiClient(),
 					getString(R.string.achievement_10_points_or_more));
@@ -463,6 +464,20 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 		if(gamesPlayed >= 2500) {
 			Games.Achievements.unlock(gameHelper.getApiClient(),
 					getString(R.string.achievement_play_2500_games));
+		}
+		if(shipUnlocked == 10 && shipsNation.equals("ger")) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_for_magdalene));
+		}
+		if(shipUnlocked == 9 && shipsNation.equals("ger")) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_im_watching_you));
+
+		}
+		if(shipUnlocked == 15 && shipsNation.equals("")) {
+			Games.Achievements.unlock(gameHelper.getApiClient(),
+					getString(R.string.achievement_im_watching_you));
+
 		}
 	}
 

@@ -68,7 +68,7 @@ class ShopScreen implements Screen {
         if(whichNation.equals(""))
             return 20;
         else
-            return 12;
+            return 14;
     }
 
     @Override
@@ -348,6 +348,9 @@ class ShopScreen implements Screen {
                 priceText[index] = pricesFrames.getKeyFrame(shipPrice[index]);
                 shopItems[index] = new Texture("shop_items/rus/shop_ship_" + index + whichNation + ".png");
                 shopButtons[index] = new ImageButton(useButton);
+                if(CykaGame.playServices.isSignedIn()) {
+                    CykaGame.playServices.unlockAchievement(-1, -1, index, whichNation);
+                }
             }
             stage.addActor(shopButtons[index]);
 
@@ -375,6 +378,10 @@ class ShopScreen implements Screen {
                             shopButtons[index].setChecked(true);
                             //REMEMBER THAT!
                             CykaGame.prefs.flush();
+                            //GET ACHIEVEMENT
+                            if(CykaGame.playServices.isSignedIn()) {
+                                CykaGame.playServices.unlockAchievement(-1, -1, index, whichNation);
+                            }
                         }
                         else
                             sounds.cantBuySound.play(volume);
@@ -391,8 +398,8 @@ class ShopScreen implements Screen {
                             CykaGame.prefs.putInteger("whichShip"+whichNation, index);
                         }
                         CykaGame.prefs.flush();
+                        //GET ACHIEVEMENT
                     }
-
                 }
             });
         }
