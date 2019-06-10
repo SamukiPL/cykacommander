@@ -74,10 +74,6 @@ class DeathScreen implements Screen {
         //CONTROLS OFF
         if(playsCounter == 1)
             CykaGame.prefs.putBoolean("controls_on", false);
-        if(playsCounter % SHOW_AD_EVERY == 1)
-            game.share.showInterstitialAd();
-        else
-            game.share.loadInterstitialAd();
         //SAVING PLAYS COUNTER
         CykaGame.prefs.putInteger("plays_counter", ++playsCounter);
         CykaGame.prefs.flush();

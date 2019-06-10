@@ -84,7 +84,7 @@ class GameScreen implements Screen {
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
         //BACKGROUND
-        background = new Texture("stardust.png");
+        background = new Texture("stardust_experiment.png");
         dickMars = new Texture("planets/dickmars.png");
         cykaEarth = new Texture("planets/cykaearth.png");
         cykaPlanet = new Texture("planets/cykaplanet.png");

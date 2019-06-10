@@ -20,7 +20,7 @@ class CykaSplashScreen implements Screen {
     private long startTime;
 
     private Texture samukiLogo;
-    private Texture updateText;
+    //private Texture updateText;
 
     private Animation appLogoAnimation;
     private TextureRegion appLogo;
@@ -38,7 +38,7 @@ class CykaSplashScreen implements Screen {
         stage = new Stage(viewport,game.batch);
         Gdx.input.setInputProcessor(stage);
         samukiLogo = new Texture("samuki_logo.png");
-        updateText = new Texture("update_text.png");
+        //updateText = new Texture("update_text.png");
 
         startTime = TimeUtils.millis();
 
@@ -76,7 +76,7 @@ class CykaSplashScreen implements Screen {
         color.a = 0.4f;
         game.batch.setColor(color);
         game.batch.draw(samukiLogo, viewport.getWorldWidth()/2-32, 32, 64, 64);
-        game.batch.draw(updateText, viewport.getWorldWidth()/2-198, viewport.getWorldHeight()-100, 396, 42);
+        //game.batch.draw(updateText, viewport.getWorldWidth()/2-198, viewport.getWorldHeight()-100, 396, 42);
         color.a = 1f;
         game.batch.setColor(color);
         game.batch.end();
@@ -111,6 +111,6 @@ class CykaSplashScreen implements Screen {
     public void dispose() {
         stage.dispose();
         samukiLogo.dispose();
-        updateText.dispose();
+        //updateText.dispose();
     }
 }

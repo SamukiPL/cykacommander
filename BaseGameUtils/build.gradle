@@ -3,29 +3,30 @@ apply plugin: 'com.android.library'
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.4.1'
     }
 }
 
 dependencies {
     // Set defaults so that BaseGameUtils can be used outside of BasicSamples
     if (!project.hasProperty('appcompat_library_version')) {
-        ext.appcompat_library_version = '25.1.+'
+        ext.appcompat_library_version = '28.0.0'
     }
     if (!project.hasProperty('support_library_version')) {
-        ext.support_library_version = '25.1.+'
+        ext.support_library_version = '28.0.0'
     }
     if (!project.hasProperty('gms_library_version')) {
-        ext.gms_library_version = '10.0.1'
+        ext.gms_library_version = '16.0.0'
     }
 
-    compile "com.android.support:appcompat-v7:${appcompat_library_version}"
-    compile "com.android.support:support-v4:${support_library_version}"
-    compile "com.google.android.gms:play-services-games:${gms_library_version}"
-    compile "com.google.android.gms:play-services-plus:${gms_library_version}"
+    implementation "com.android.support:appcompat-v7:${appcompat_library_version}"
+    implementation "com.android.support:support-v4:${support_library_version}"
+    implementation "com.google.android.gms:play-services-games:${gms_library_version}"
+    implementation "com.google.android.gms:play-services-plus:${gms_library_version}"
 }
 
 android {
@@ -37,11 +38,11 @@ android {
         ext.android_min_version = 16
     }
     if (!project.hasProperty('android_version')) {
-        ext.build_tools_version = "25.0.2"
+        ext.build_tools_version = "28.0.3"
     }
 
     compileSdkVersion android_compile_version
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion android_min_version

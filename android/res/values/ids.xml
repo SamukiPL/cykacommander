@@ -18,7 +18,7 @@
     <string name="achievement_play_1000_games" translatable="false">CgkIx5G1kr0EEAIQDg</string>
     <string name="achievement_play_2500_games" translatable="false">CgkIx5G1kr0EEAIQDw</string>
     <string name="achievement_for_magdalene" translatable="false">CgkIx5G1kr0EEAIQEA</string>
-    <string name="achievement_im_watching_you">CgkIx5G1kr0EEAIQEQ</string>
-    <string name="achievement_hero_ship">CgkIx5G1kr0EEAIQEg</string>
+    <string name="achievement_im_watching_you" translatable="false">CgkIx5G1kr0EEAIQEQ</string>
+    <string name="achievement_hero_ship" translatable="false">CgkIx5G1kr0EEAIQEg</string>
     <string name="leaderboard_best_score_from_all_around_the_world" translatable="false">CgkIx5G1kr0EEAIQBg</string>
 </resources>

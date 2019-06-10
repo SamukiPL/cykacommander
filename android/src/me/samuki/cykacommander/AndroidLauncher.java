@@ -1,12 +1,12 @@
 package me.samuki.cykacommander;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,36 +16,17 @@ import android.widget.Toast;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.reward.RewardItem;
-import com.google.android.gms.ads.reward.RewardedVideoAd;
-import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.GameHelper;
 
-public class AndroidLauncher extends AndroidApplication implements ShareAction, PlayServices, RewardedVideoAdListener {
-	//Testowe zakomentowane
-	final String AD_UNIT_ID_BANNER = "";//ca-app-pub-3940256099942544/6300978111
-	final String AD_UNIT_ID_INTERSTITIAL = "";//ca-app-pub-3940256099942544/1033173712
-    final String AD_UNIT_ID_REWARDED = "";//ca-app-pub-3940256099942544/5224354917
-
+public class AndroidLauncher extends AndroidApplication implements ShareAction, PlayServices {
 	private GameHelper gameHelper;
 	private final static int requestCode = 1;
 
-	AdView adView;
-	private InterstitialAd interstitialAd;
-    boolean isInterstitialLoaded;
-    private RewardedVideoAd rewardedAd;
-
 	RelativeLayout.LayoutParams paramsGame;
-	RelativeLayout.LayoutParams paramsAds;
 	int gameViewTopMargin;
 
+	@SuppressLint("HandlerLeak")
 	private final Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			String genderResult = getResources().getString(R.string.gender_result);
@@ -80,84 +61,18 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 		gameHelper.setup(gameHelperListener);
 
 
-		//ADS AND VIEW
+		//VIEW
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 
 		final View gameView = initializeForView(new CykaGame(this, this), config);
-		gameViewTopMargin = AdSize.SMART_BANNER.getHeightInPixels(this.getContext());
-		setupAds();
 
 		RelativeLayout layout = new RelativeLayout(this);
 		paramsGame = new RelativeLayout.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
+				ViewGroup.LayoutParams.MATCH_PARENT);
 		layout.addView(gameView, paramsGame);
-		paramsAds = new RelativeLayout.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
-		paramsAds.setMargins(0, -gameViewTopMargin, 0, 0);
-		paramsAds.addRule(RelativeLayout.ALIGN_TOP);
-		paramsAds.addRule(RelativeLayout.ABOVE, gameView.getId());
-		layout.addView(adView, paramsAds);
 
 		setContentView(layout);
-		startAdvertising(adView);
-
-		adView.setAdListener(new AdListener() {
-			@Override
-			public void onAdClosed() {
-				super.onAdClosed();
-			}
-
-			@Override
-			public void onAdFailedToLoad(int i) {
-				super.onAdFailedToLoad(i);
-				hideSystemUI();
-				paramsGame.setMargins(0, 0, 0, 0);
-				gameView.setLayoutParams(paramsGame);
-				paramsAds.setMargins(0, -gameViewTopMargin, 0, 0);
-				adView.setLayoutParams(paramsAds);
-			}
-
-			@Override
-			public void onAdLeftApplication() {
-				super.onAdLeftApplication();
-			}
-
-			@Override
-			public void onAdOpened() {
-				super.onAdOpened();
-			}
-
-			@Override
-			public void onAdLoaded() {
-				super.onAdLoaded();
-				hideSystemUI();
-				paramsGame.setMargins(0, gameViewTopMargin, 0, 0);
-				gameView.setLayoutParams(paramsGame);
-				paramsAds.setMargins(0, 0, 0, 0);
-				adView.setLayoutParams(paramsAds);
-			}
-		});
-		//INTERSTITIAL AD
-		interstitialAd = new InterstitialAd(this);
-		interstitialAd.setAdUnitId(AD_UNIT_ID_INTERSTITIAL);
-		interstitialAd.setAdListener(new AdListener() {
-			@Override
-			public void onAdLoaded() {
-				super.onAdLoaded();
-			}
-
-			@Override
-			public void onAdClosed() {
-				super.onAdClosed();
-			}
-		});
-        loadInterstitialAd();
-        //REWARDED AD
-        rewardedAd = MobileAds.getRewardedVideoAdInstance(this);
-        rewardedAd.setRewardedVideoAdListener(this);
-
 	}
 
 	@Override
@@ -181,92 +96,6 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 		gameHelper.onActivityResult(requestCode, resultCode, data);
 	}
 
-    @Override
-    public void showRewardedAd() {
-		try {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					if(rewardedAd.isLoaded()) {
-						rewardedAd.show();
-					}
-				}
-			});
-		} catch (Exception ignored) {
-
-		}
-    }
-
-    @Override
-	public void loadRewardedAd() {
-		try {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder()
-                            .addTestDevice("111799C3AA4FAD728F7A0E814E55273F").build());
-				}
-			});
-		} catch (Exception ignored) {}
-	}
-
-    @Override
-    public void loadInterstitialAd() {
-        try {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(!interstitialAd.isLoaded()) {
-                        AdRequest interstitialRequest = new AdRequest.Builder()
-                                .addTestDevice("111799C3AA4FAD728F7A0E814E55273F").build();
-                        interstitialAd.loadAd(interstitialRequest);
-                        isInterstitialLoaded = true;
-                    }
-                }
-            });
-        } catch (Exception ignored) {
-
-        }
-    }
-
-    @Override
-    public void showInterstitialAd() {
-        try {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(interstitialAd.isLoaded()) {
-                        interstitialAd.show();
-                        isInterstitialLoaded = false;
-                    }
-                    else {
-                        loadInterstitialAd();
-                    }
-                }
-            });
-        } catch (Exception ignored) {
-
-        }
-
-    }
-
-    public void setupAds() {
-		adView = new AdView(this);
-		adView.setVisibility(View.VISIBLE);
-		adView.setBackgroundColor(0xff000000); //d7d7d7
-		adView.setAdUnitId(AD_UNIT_ID_BANNER);
-		adView.setAdSize(AdSize.SMART_BANNER);
-	}
-
-	private void startAdvertising(AdView adView) {
-		AdRequest adRequest = new AdRequest.Builder()
-				.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice("111799C3AA4FAD728F7A0E814E55273F")
-				.build();
-		adView.loadAd(adRequest);
-	}
-
-	@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 	private void hideSystemUI() {
 		getWindow().getDecorView().setSystemUiVisibility(
 				  		  View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -280,24 +109,18 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	@Override
 	public void onResume() {
 		super.onResume();
-        rewardedAd.resume(this);
 		hideSystemUI();
-		if (adView != null) adView.resume();
 	}
 
 	@Override
 	public void onPause() {
 		hideSystemUI();
-        rewardedAd.pause(this);
-		if (adView != null) adView.pause();
 		super.onPause();
 	}
 
 	@Override
 	public void onDestroy() {
 		hideSystemUI();
-        rewardedAd.destroy(this);
-		if (adView != null) adView.destroy();
 		super.onDestroy();
 	}
 
@@ -309,24 +132,6 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-
-		if (hasFocus) {
-			delayedHide(300);
-		} else {
-			mHideHandler.removeMessages(0);
-		}
-	}
-
-	private final Handler mHideHandler = new Handler() {
-		@Override
-		public void handleMessage(Message msg) {
-			hideSystemUI();
-		}
-	};
-
-	private void delayedHide(int delayMillis) {
-		mHideHandler.removeMessages(0);
-		mHideHandler.sendEmptyMessageDelayed(0, delayMillis);
 	}
 
 	@Override
@@ -519,45 +324,5 @@ public class AndroidLauncher extends AndroidApplication implements ShareAction, 
 	public boolean isSignedIn()
 	{
 		return gameHelper.isSignedIn();
-	}
-
-	@Override
-	public void onRewarded(RewardItem rewardItem) {//MUST HAVE!!!
-		MenuScreen.giveThatReward(rewardItem.getAmount());
-		System.out.println(rewardItem.getType() +":    " + rewardItem.getAmount());
-	}
-
-	@Override
-	public void onRewardedVideoAdLeftApplication() {
-
-	}
-
-	@Override
-	public void onRewardedVideoAdClosed() {
-		rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder()
-                .addTestDevice("111799C3AA4FAD728F7A0E814E55273F").build());
-	}
-
-	@Override
-	public void onRewardedVideoAdFailedToLoad(int errorCode) {
-		rewardedAd.loadAd(AD_UNIT_ID_REWARDED, new AdRequest.Builder().build());
-	}
-
-	@Override
-	public void onRewardedVideoAdLoaded() {
-		GameBasic.adIsReady = true;
-		try {
-			MenuScreen.giveVodka();
-		} catch (Exception ignored) {}
-	}
-
-	@Override
-	public void onRewardedVideoAdOpened() {
-
-	}
-
-	@Override
-	public void onRewardedVideoStarted() {
-
 	}
 }
